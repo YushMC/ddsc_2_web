@@ -91,7 +91,7 @@ onMounted(fetchMods);
 .space_cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 5%;
+  gap: 5rem;
 }
 .card {
   width: 100%;
