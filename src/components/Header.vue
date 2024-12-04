@@ -59,6 +59,7 @@ header {
   box-shadow: 0px 0px 10px 5px rgba(255, 255, 255, 0.2);
   padding: 0;
   margin: 0;
+  backdrop-filter: blur(10px);
 }
 .notificaciones_header {
   width: 100%;

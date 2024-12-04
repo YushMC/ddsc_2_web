@@ -12,7 +12,6 @@
   margin: 0;
 }
 body {
-  overflow: hidden;
 }
 @media (prefers-color-scheme: light) {
   :root {

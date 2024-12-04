@@ -30,12 +30,11 @@
 
 <style scoped>
 footer {
-  width: 100%;
   display: flex;
   flex-direction: column;
   background: #e726ee52;
   backdrop-filter: blur(10px);
-  position: sticky;
+  position: relative;
   bottom: 0;
 }
 .container_footer {
@@ -60,7 +59,6 @@ footer {
   width: 100%;
 }
 footer > div:last-child {
-  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
