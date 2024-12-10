@@ -8,7 +8,10 @@
       <h1>DDSCs</h1>
     </div>
   </div>
-  <ContentCards></ContentCards>
+  <ContentCards :solicitud="1"></ContentCards>
+  <ContentCards :solicitud="2"></ContentCards>
+  <ContentCards :solicitud="3"></ContentCards>
+  <ContentCards :solicitud="4"></ContentCards>
 </template>
 
 <script setup>
@@ -17,8 +20,7 @@ import ContentCards from "../components/ContentCards.vue";
 
 <style scoped>
 .content_info {
-  max-width: 1000px;
-  width: 100%;
+  width: 80%;
   margin: auto;
   background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(10px);
