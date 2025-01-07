@@ -42,7 +42,7 @@
           <div class="botones_info">
             <a :href="mod.link_pc" target="_blank">PC</a>
             <a :href="mod.link_android" target="_blank">Android</a>
-            <a :href="mod.id">Info</a>
+            <router-link :to="{ path: `/mod/${mod.id}` }">Info</router-link>
           </div>
         </div>
       </div>
@@ -157,8 +157,11 @@ onMounted(() => {
   box-sizing: border-box;
 }
 .container_cards h2:first-child {
-  position: sticky;
+  /* position: sticky;
   top: 100px;
+  */
+  position: relative;
+
   text-align: center;
   background: #e726ee;
   box-shadow: 0px 0px 50px 5px rgba(8, 8, 8, 0.39);
@@ -202,9 +205,7 @@ onMounted(() => {
   padding: 4%;
   transition: all 0.3s linear;
 }
-.card:hover {
-  transform: translateX(10px) translateY(-10px);
-}
+
 .space_cards .card {
   display: grid;
   grid-template-rows: repeat(4, 1fr);
@@ -262,7 +263,7 @@ onMounted(() => {
   transition: all 0.3s linear;
 }
 .banner_img:hover .swiper {
-  transform: scale(1.5);
+  transform: scale(1.1);
   position: relative;
   z-index: 90;
   filter: drop-shadow(0px 5px 50px #000000);

@@ -21,7 +21,7 @@
       </div>
     </div>
     <div>
-      <h3>© Doki Doki Spanish Club 2019 - 2024</h3>
+      <h3>© Doki Doki Spanish Club 2019 - 2025</h3>
     </div>
   </footer>
 </template>
@@ -65,5 +65,27 @@ footer > div:last-child {
   padding: 1% 0;
   background: #e726ee;
   color: #fff;
+}
+@media screen and (max-width: 600px) {
+  .container_footer {
+    display: flex;
+    flex-direction: column;
+    padding: 5%;
+  }
+  .container_footer div:first-child {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+  }
+  .container_footer div:first-child img {
+    width: 3rem;
+  }
+  .container_footer div:last-child {
+    display: none;
+  }
+  .container_footer p {
+    font-size: 0.5rem;
+  }
 }
 </style>

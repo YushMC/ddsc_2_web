@@ -1,6 +1,6 @@
 <template>
   <header>
-    <div class="notificaciones_header">
+    <div class="notificaciones_header" v-if="false">
       <h1>Hola</h1>
     </div>
     <div class="container_header">
@@ -13,7 +13,7 @@
           <a href="">DDLC</a>
         </div>
         <div class="enlaces">
-          <a href="">Inicio</a>
+          <router-link to="/">Inicio</router-link>
         </div>
         <div class="enlaces">
           <a href="">Traducciones</a>
@@ -48,7 +48,7 @@ header {
   position: fixed;
   top: 0;
   left: 0;
-  background: #2c2757ce;
+  background: #ffffff28;
   width: 100vw;
   display: flex;
   flex-direction: column;
@@ -56,7 +56,6 @@ header {
   justify-content: center;
   padding: 1% 0;
   z-index: 100;
-  box-shadow: 0px 0px 10px 5px rgba(255, 255, 255, 0.2);
   padding: 0;
   margin: 0;
   backdrop-filter: blur(10px);
