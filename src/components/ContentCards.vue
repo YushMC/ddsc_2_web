@@ -1,17 +1,94 @@
 <template>
   <div class="container_cards">
-    <h2>{{ seccion_titulo }}</h2>
+    <h2>{{ seccion_titulo }} ({{ totalData }})</h2>
     <div class="container_options">
       <div class="visualizar">
-        <button @click="toggleViews">Cambiar presentación</button>
+        <button @click="toggleViews" id="toggleView">
+          <img v-if="!isActive" src="../assets/gui/list_icon.svg" alt="" />
+          <img src="../assets/gui/grid_icon.svg" alt="" v-else />
+        </button>
+        <div class="pagination">
+          <button
+            :disabled="currentPage === 1"
+            @click="changePage(currentPage - 1)"
+          >
+            Anterior
+          </button>
+
+          <span>Página {{ currentPage }} de {{ totalPages }}</span>
+          <input
+            type="number"
+            v-model="inputPage"
+            @keyup.enter="goToPage"
+            :min="1"
+            :max="totalPages"
+            placeholder="Ir a página"
+          />
+          <button
+            :disabled="currentPage === totalPages"
+            @click="changePage(currentPage + 1)"
+          >
+            Siguiente
+          </button>
+          <select v-model="itemsPerPage" @change="resetToFirstPage">
+            <option :value="5">5 por página</option>
+            <option :value="10">10 por página</option>
+            <option :value="15">15 por página</option>
+            <option :value="20">20 por página</option>
+            <option :value="50">50 por página</option>
+          </select>
+        </div>
+      </div>
+      <div class="filtros_busqueda" v-if="seleccion_ruta >= 5">
+        <h4>Filtros:</h4>
+        <select v-model="filters.genero">
+          <option value="">Todos los géneros</option>
+          <option
+            v-for="(option, index) in sortedGeneros"
+            :key="index"
+            :value="option"
+          >
+            {{ option }}
+          </option>
+        </select>
+        <select v-model="filters.estado">
+          <option value="">Todos los estados</option>
+          <option
+            v-for="(option, index) in sortedEstados"
+            :key="index"
+            :value="option"
+          >
+            {{ option }}
+          </option>
+        </select>
+        <select v-model="filters.enfoque">
+          <option value="">Todos los enfoques</option>
+          <option
+            v-for="(option, index) in sortedEnfoques"
+            :key="index"
+            :value="option"
+          >
+            {{ option }}
+          </option>
+        </select>
+        <select v-model="filters.duracion">
+          <option value="">Todas las duraciones</option>
+          <option
+            v-for="(option, index) in sortedDuracion"
+            :key="index"
+            :value="option"
+          >
+            {{ option }}
+          </option>
+        </select>
+        <button @click="resetFilters">Reiniciar Filtros</button>
       </div>
     </div>
-    <div v-if="loading">Cargando...</div>
-    <transition name="blur-transition">
-      <div :class="isActive ? 'space_cards_2' : 'space_cards'">
+    <transition name="blur" mode="out-in">
+      <div v-if="!loading" :class="isActive ? 'space_cards_2' : 'space_cards'">
         <div
           class="card"
-          v-for="mod in mods"
+          v-for="mod in paginatedItems"
           :key="mod.id"
           :class="mod.seleccion ? 'isSeleccion' : ''"
         >
@@ -25,7 +102,6 @@
               class="mySwiper"
               :space-between="10"
             >
-              <!-- Generar dinámicamente los slides con v-for -->
               <swiper-slide
                 v-for="(url, index) in getValidImages(mod)"
                 :key="index"
@@ -40,8 +116,6 @@
             <h3><b>Estado:</b> {{ mod.estado }}</h3>
           </div>
           <div class="botones_info">
-            <a :href="mod.link_pc" target="_blank">PC</a>
-            <a :href="mod.link_android" target="_blank">Android</a>
             <router-link :to="{ path: `/mod/${mod.id}` }">Info</router-link>
           </div>
         </div>
@@ -51,6 +125,14 @@
 </template>
 
 <script setup>
+import { ref, onMounted, computed } from "vue";
+import { Swiper, SwiperSlide } from "swiper/vue";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+import { Navigation, Pagination } from "swiper/modules";
+
+// Props y estado
 const props = defineProps({
   solicitud: {
     type: Number,
@@ -58,15 +140,7 @@ const props = defineProps({
   },
 });
 console.log(props.solicitud);
-import { ref, onMounted, computed } from "vue";
-import { Swiper, SwiperSlide } from "swiper/vue"; // Componentes de Swiper
-import "swiper/css"; // Estilos básicos
-import "swiper/css/navigation";
-import "swiper/css/pagination";
 
-import { Navigation, Pagination } from "swiper/modules"; // Módulos de Swiper
-
-//variables
 const mods = ref([]);
 const loading = ref(false);
 const error = ref("");
@@ -75,15 +149,105 @@ const isActive = ref(false);
 const seleccion_ruta = ref(0);
 const seccion_titulo = ref("");
 seleccion_ruta.value = props.solicitud;
-//swipers
-
-const slides = ref([]); // Arreglo para los slides
-
 const toggleViews = () => {
   isActive.value = !isActive.value;
 };
+// Paginación
+const totalData = computed(() => filteredItems.value.length);
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
+const inputPage = ref("");
 
-// Computar las imágenes válidas de los mods
+const totalPages = computed(() => {
+  const totalItems = filteredItems.value.length || 0;
+  return Math.ceil(totalItems / itemsPerPage.value) || 1;
+});
+
+const paginatedItems = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return filteredItems.value.slice(start, end);
+});
+
+// Cambiar página
+const changePage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page;
+  }
+};
+
+// Ir a la página especificada
+const goToPage = () => {
+  const page = parseInt(inputPage.value, 10);
+  if (!isNaN(page) && page >= 1 && page <= totalPages.value) {
+    currentPage.value = page;
+  }
+  inputPage.value = "";
+};
+
+// Filtros
+const filters = ref({
+  genero: "",
+  estado: "",
+  enfoque: "",
+  duracion: "",
+});
+
+const uniqueGeneros = computed(() => [
+  ...new Set(mods.value.map((mod) => mod.genero)),
+]);
+const uniqueEstados = computed(() => [
+  ...new Set(mods.value.map((mod) => mod.estado)),
+]);
+const uniqueEnfoques = computed(() => [
+  ...new Set(mods.value.map((mod) => mod.enfoque)),
+]);
+const uniqueDuracion = computed(() => [
+  ...new Set(mods.value.map((mod) => mod.duracion)),
+]);
+// Ordenar alfabéticamente los géneros
+const sortedGeneros = computed(() => {
+  return uniqueGeneros.value.sort((a, b) => a.localeCompare(b));
+});
+
+// Ordenar alfabéticamente los géneros
+const sortedEstados = computed(() => {
+  return uniqueEstados.value.sort((a, b) => a.localeCompare(b));
+});
+
+// Ordenar alfabéticamente los géneros
+const sortedEnfoques = computed(() => {
+  return uniqueEnfoques.value.sort((a, b) => a.localeCompare(b));
+});
+
+// Ordenar alfabéticamente los géneros
+const sortedDuracion = computed(() => {
+  return uniqueDuracion.value.sort((a, b) => a.localeCompare(b));
+});
+// Filtrado de los mods según los filtros seleccionados
+const filteredItems = computed(() => {
+  return mods.value.filter((mod) => {
+    return (
+      (filters.value.genero === "" || mod.genero === filters.value.genero) &&
+      (filters.value.estado === "" || mod.estado === filters.value.estado) &&
+      (filters.value.enfoque === "" || mod.enfoque === filters.value.enfoque) &&
+      (filters.value.duracion === "" || mod.duracion === filters.value.duracion)
+    );
+  });
+});
+
+// Función para reiniciar los filtros
+const resetFilters = () => {
+  filters.value = {
+    genero: "",
+    estado: "",
+    enfoque: "",
+    duracion: "",
+  };
+  currentPage.value = 1; // Reiniciar la página a la 1 al reiniciar los filtros
+};
+
+// Obtener imágenes válidas de cada mod
 const getValidImages = (mod) => {
   return [mod.url_img, mod.url_img2, mod.url_img3, mod.url_img4].filter(
     (url) => url && url.trim() !== ""
@@ -95,6 +259,7 @@ const fetchMods = async () => {
   loading.value = true;
   error.value = "";
 
+  // Cambiar la URL según la ruta seleccionada
   switch (seleccion_ruta.value) {
     case 1:
       seccion_titulo.value = "Traducciones Recientes";
@@ -115,15 +280,24 @@ const fetchMods = async () => {
       seccion_titulo.value = "Selección de la Comunidad";
       ruta.value = "https://www.dokidokispanish.club/api_ddsc/mods/selection";
       break;
+    case 5:
+      seccion_titulo.value = "Traducciones";
+      ruta.value =
+        "https://www.dokidokispanish.club/api_ddsc/mods/translated-mods";
+      break;
+    case 6:
+      seccion_titulo.value = "Mods de la comunidad";
+      ruta.value =
+        "https://www.dokidokispanish.club/api_ddsc/mods/community-mods";
+      break;
   }
+
   try {
     const response = await fetch(ruta.value);
     if (!response.ok) {
       throw new Error(`Error HTTP: ${response.status}`);
     }
     const jsonData = await response.json();
-
-    // Acceder a los datos dentro de `results`
     mods.value = jsonData.results || [];
   } catch (err) {
     error.value = err.message || "Error desconocido";
@@ -132,6 +306,7 @@ const fetchMods = async () => {
   }
 };
 
+// Cargar los mods al montar el componente
 onMounted(() => {
   fetchMods();
 });
@@ -141,7 +316,7 @@ onMounted(() => {
 .container_cards {
   width: 80%;
   margin: 1% auto;
-
+  height: fit-content !important;
   background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(10px);
   padding-left: 4%;
@@ -153,7 +328,7 @@ onMounted(() => {
   flex-direction: column;
   border-top-width: 0.5rem;
   border-top-style: solid;
-  border-top-color: #e726ee;
+  border-top-color: #a610ac;
   box-sizing: border-box;
 }
 .container_cards h2:first-child {
@@ -163,7 +338,7 @@ onMounted(() => {
   position: relative;
 
   text-align: center;
-  background: #e726ee;
+  background: #a610ac;
   box-shadow: 0px 0px 50px 5px rgba(8, 8, 8, 0.39);
   border-radius: 5px;
   color: #fff;
@@ -172,7 +347,8 @@ onMounted(() => {
 .container_options {
   width: 100%;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 2rem;
   margin: 2% 0;
 }
 .space_cards {
@@ -180,10 +356,12 @@ onMounted(() => {
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1rem;
   margin-top: 5%;
+  transition: all 0.3s linear;
 }
 .space_cards_2 {
   display: flex;
   flex-direction: column;
+  transition: all 0.3s linear;
 }
 
 .space_cards_2 .card {
@@ -228,9 +406,9 @@ onMounted(() => {
   border: 10px solid transparent;
   border-image-source: conic-gradient(
     from var(--a),
-    #e726ee,
-    #e726eebe,
-    #e726ee00
+    #a610ac,
+    #a610acbe,
+    #a610ac00
   );
   border-image-slice: 1 1 1 1;
   border-image-width: 0.25rem;
@@ -296,15 +474,50 @@ onMounted(() => {
   text-align: center;
   padding: 2%;
   border-radius: 10px;
-  background: #e726ee;
+  background: #a610ac;
   color: #fff;
   text-decoration: none;
 }
 
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.visualizar {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.visualizar .pagination {
+  width: 40dvw;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+.visualizar .pagination button {
+  border-radius: 10px;
+  border: 2px solid #a610ac;
+  padding: 1%;
+  background: none;
+}
+.visualizar .pagination input[type="number"] {
+  width: 30%;
+}
+
 /* Animación de transición cuando cambia el estado */
-.blur-transition-enter-active,
-.blur-transition-leave-active {
+.blur-enter-active,
+.blur-leave-active {
   transition: filter 0.5s ease;
+}
+
+.container_options .filtros_busqueda {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
 }
 @keyframes move {
   from {
@@ -314,7 +527,25 @@ onMounted(() => {
     --a: 360deg;
   }
 }
-
+#toggleView {
+  border: 2px solid #a610ac;
+  background: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.5%;
+  border-radius: 10px;
+}
+#toggleView img {
+  width: 2rem;
+}
+.pc_link {
+  background: rgb(0, 45, 128) !important;
+}
+.apk_link {
+  background: #0ae203 !important;
+}
 @property --a {
   syntax: "<angle>";
   inherits: true;

@@ -31,12 +31,14 @@
             :href="mod.link_pc"
             :class="{ enlace_desactivado: islinkPcDisable }"
             @click="preventAction(islinkPcDisable)"
+            target="_blank"
             >Descargar para PC</a
           >
           <a
             :href="mod.link_android"
             :class="{ enlace_desactivado: islinkAndroidDisable }"
             @click="preventAction(islinkAndroidDisable)"
+            target="_blank"
             >Descargar para Android</a
           >
         </div>
@@ -74,7 +76,7 @@ const mod = ref({});
 const error = ref("");
 
 const props = defineProps({
-  id: String,
+  id: [String, Number], // Acepta cadenas o números
 });
 
 const islinkPcDisable = computed(
@@ -126,7 +128,7 @@ onMounted(() => {
   margin: 0% auto;
   margin-bottom: 5%;
   backdrop-filter: blur(10px);
-  background: #ffffff2a;
+  background: #ffffff5e;
   padding: 1%;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -209,10 +211,6 @@ onMounted(() => {
   color: #ffffff;
 }
 
-.enlace_desactivado {
-  opacity: 0.2;
-  cursor: not-allowed;
-}
 .otros_datos {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

@@ -16,9 +16,6 @@
           con fines informativos, créditos a sus respectivos autores.
         </p>
       </div>
-      <div>
-        <a href="">discord</a>
-      </div>
     </div>
     <div>
       <h3>© Doki Doki Spanish Club 2019 - 2025</h3>
@@ -32,7 +29,7 @@
 footer {
   display: flex;
   flex-direction: column;
-  background: #e726ee52;
+  background: #a610ac52;
   backdrop-filter: blur(10px);
   position: relative;
   bottom: 0;
@@ -42,7 +39,7 @@ footer {
   width: 100%;
   margin: auto;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 2%;
 }
 .container_footer div:first-child {
@@ -63,7 +60,7 @@ footer > div:last-child {
   justify-content: center;
   align-items: center;
   padding: 1% 0;
-  background: #e726ee;
+  background: #a610ac;
   color: #fff;
 }
 @media screen and (max-width: 600px) {

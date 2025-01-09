@@ -3,26 +3,13 @@ import { ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import Header from "./components/Header.vue";
 import Footer from "./components/Footer.vue";
-
-const transitionName = ref("fade"); // Estado reactivo para la transición
-const route = useRoute(); // Obtén la información de la ruta actual
-
-// Observa cambios en la ruta
-watch(
-  () => route, // Observar la ruta actual
-  (to, from) => {
-    // Cambia la animación según la dirección
-    transitionName.value =
-      to.meta.index > from.meta.index ? "slide-left" : "slide-right";
-  }
-);
 </script>
 
 <template>
   <Header></Header>
   <main>
     <router-view v-slot="{ Component }">
-      <transition :name="transitionName">
+      <transition name="fade" mode="out-in" appear>
         <component :is="Component" />
       </transition>
     </router-view>
@@ -42,28 +29,5 @@ main {
   background-repeat: no-repeat;
   display: flex;
   flex-direction: column;
-}
-/* Izquierda */
-.slide-left-enter-active,
-.slide-left-leave-active {
-  transition: transform 0.5s ease;
-}
-.slide-left-enter {
-  transform: translateX(100%);
-}
-.slide-left-leave-to {
-  transform: translateX(-100%);
-}
-
-/* Derecha */
-.slide-right-enter-active,
-.slide-right-leave-active {
-  transition: transform 0.5s ease;
-}
-.slide-right-enter {
-  transform: translateX(-100%);
-}
-.slide-right-leave-to {
-  transform: translateX(100%);
 }
 </style>

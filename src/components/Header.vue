@@ -1,7 +1,18 @@
 <template>
   <header>
-    <div class="notificaciones_header" v-if="false">
-      <h1>Hola</h1>
+    <!-- 
+    <div
+      class="notificaciones_header"
+      v-for="(item, index) in noti"
+      :key="index"
+      v-if="!noti.activo"
+    >
+      <h1>{{ item.title }}</h1>
+      <router-link :to="{ path: `/mod/${item.id_mod}` }">Ver Más</router-link>
+    </div>
+    -->
+    <div class="notificaciones_header" style="background: orange">
+      <h1>Sitio en construcción y experimental</h1>
     </div>
     <div class="container_header">
       <div class="container_sitio">
@@ -10,45 +21,75 @@
       </div>
       <nav>
         <div class="enlaces">
-          <a href="">DDLC</a>
+          <a
+            href="https://www.dokidokispanish.club/Doki-Doki-Literature-Club"
+            target="_blank"
+            >DDLC</a
+          >
         </div>
         <div class="enlaces">
           <router-link to="/">Inicio</router-link>
         </div>
         <div class="enlaces">
-          <a href="">Traducciones</a>
+          <router-link to="/traducciones" href="">Traducciones</router-link>
           <div class="submenu">
             <a href="">Hola</a>
           </div>
         </div>
         <div class="enlaces">
-          <a href="">Mods</a>
-          <div class="submenu">
-            <a href="">Hola</a>
-          </div>
+          <router-link to="/mods">Mods</router-link>
         </div>
+        <!-- 
         <div class="enlaces">
           <a href="">Comunidad</a>
-          <div class="submenu">
-            <a href="">Hola</a>
-          </div>
         </div>
+         -->
       </nav>
       <div class="container_buttons_header">
-        <a href="">Cuenta</a>
+        <a href="https://www.dokidokispanish.club/">Sitio clásico</a>
       </div>
     </div>
   </header>
 </template>
 
-<script setup></script>
+<script setup>
+import { onMounted, ref } from "vue";
+
+const error = ref("");
+const ruta = ref("");
+const noti = ref("");
+
+const fetchMods = async () => {
+  error.value = "";
+
+  // Cambiar la URL según la ruta seleccionada
+
+  ruta.value = "https://www.dokidokispanish.club/api_ddsc/notifications";
+
+  try {
+    const response = await fetch(ruta.value);
+    if (!response.ok) {
+      throw new Error(`Error HTTP: ${response.status}`);
+    }
+    const jsonData = await response.json();
+    noti.value = jsonData.results || [];
+  } catch (err) {
+    error.value = err.message || "Error desconocido";
+  }
+};
+
+// Cargar los mods al montar el componente
+onMounted(() => {
+  fetchMods();
+});
+</script>
 
 <style scoped>
 header {
   position: fixed;
   top: 0;
   left: 0;
-  background: #ffffff28;
+  background: #a710ac54;
   width: 100vw;
   display: flex;
   flex-direction: column;
@@ -62,7 +103,7 @@ header {
 }
 .notificaciones_header {
   width: 100%;
-  background: #e726ee;
+  background: #a610ac;
   height: 50%;
   overflow: hidden;
   display: flex;
@@ -73,25 +114,34 @@ header {
   font-size: 1.2rem;
   color: #fff;
 }
+.notificaciones_header a {
+  margin: 0.3% 2%;
+  border: #fff solid 2px;
+  padding: 0.3%;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 10px;
+}
 .container_header {
-  max-width: 1000px;
-  width: 100%;
+  width: 80%;
   height: 50%;
   margin: auto;
-  display: grid;
-  grid-template-columns: 2fr 3fr 1fr;
+  display: flex;
+  justify-content: space-between;
   gap: 5%;
   align-items: center;
   padding: 1% 0;
 }
 .container_sitio {
-  width: 100%;
+  width: 30%;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 .container_sitio h1 {
-  font-size: 1rem;
+  text-align: left;
+  font-size: 1.5rem;
+  color: #fff;
 }
 nav {
   width: 100%;
@@ -109,7 +159,7 @@ nav .enlaces a {
   width: 100%;
   text-decoration: none;
   color: #fff;
-  font-size: 0.9rem;
+  font-size: 1rem;
   padding: 2%;
   border-radius: 5px;
   text-align: center;
@@ -145,7 +195,7 @@ nav .enlaces a {
   z-index: 90 !important;
 }
 .container_buttons_header {
-  width: 100%;
+  width: 20%;
   display: flex;
   justify-content: center;
   align-items: center;
