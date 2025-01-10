@@ -36,7 +36,7 @@
           </swiper-slide>
         </Swiper>
       </div>
-      <div class="content_info">
+      <div class="content_info" style="background: none !important">
         <div class="content_logo">
           <h1>{{ mod.nombre }}</h1>
           <img :src="mod.url_logo" alt="" />
@@ -398,7 +398,7 @@ onMounted(() => {
     font-size: 0.8rem;
   }
 }
-@media screen and (max-width: 550px) {
+@media screen and (max-width: 800px) {
   .portada {
     padding: 2%;
   }
@@ -428,6 +428,9 @@ onMounted(() => {
   .mySwiper {
     display: none !important;
     height: 50dvh !important;
+  }
+  .content_info {
+    background: none !important;
   }
 }
 </style>

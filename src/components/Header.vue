@@ -45,6 +45,40 @@
         <div class="container_buttons_header">
           <a href="https://www.dokidokispanish.club/">Sitio clásico</a>
         </div>
+        <button @click="toggleSearchBar" id="searchButton">
+          <img src="../assets/gui/icon_search_white.svg" alt="" />
+        </button>
+        <div class="search_bar" :class="{ active: isActiveSearchBar }">
+          <div class="container_search_bar">
+            <div class="icon_search_ico">
+              <img src="../assets/gui/icon_search_balck.svg" alt="" />
+            </div>
+            <input
+              type="text"
+              placeholder="Buscar"
+              v-model="searchQuery"
+              @input="filterMods"
+            />
+          </div>
+          <ul class="container_results">
+            <li
+              v-for="mod in filteredMods"
+              :key="mod.id"
+              v-if="searchQuery.length > 0"
+            >
+              <router-link :to="`/mod/${mod.id}`"
+                ><img src="../assets/gui/icon_search_balck.svg" alt="" />{{
+                  mod.nombre
+                }}</router-link
+              >
+            </li>
+          </ul>
+          <div
+            id="cerrar_bar"
+            @click="toggleSearchBar"
+            v-if="isActiveSearchBar"
+          ></div>
+        </div>
       </nav>
       <button id="buttonMenu" @click="toggleMenu" v-if="!isMenuResponsive">
         Mostrar
@@ -58,6 +92,11 @@
 import { onMounted, ref } from "vue";
 
 const isMenuResponsive = ref(false);
+const isActiveSearchBar = ref(false);
+
+const mods = ref([]);
+const searchQuery = ref(""); // Consulta de búsqueda
+const filteredMods = ref([]); // Resultados filtrados
 
 const error = ref("");
 const ruta = ref("");
@@ -65,6 +104,17 @@ const noti = ref("");
 
 const toggleMenu = () => {
   isMenuResponsive.value = !isMenuResponsive.value;
+};
+
+const toggleSearchBar = () => {
+  isActiveSearchBar.value = !isActiveSearchBar.value;
+};
+// Filtrar mods en base al texto de búsqueda
+const filterMods = () => {
+  const query = searchQuery.value.toLowerCase();
+  filteredMods.value = mods.value.filter((mod) =>
+    mod.nombre.toLowerCase().includes(query)
+  );
 };
 
 const fetchNoti = async () => {
@@ -85,10 +135,26 @@ const fetchNoti = async () => {
     error.value = err.message || "Error desconocido";
   }
 };
+const fetchMods = async () => {
+  try {
+    const response = await fetch(
+      "https://www.dokidokispanish.club/api_ddsc/mods"
+    );
+    if (!response.ok) {
+      throw new Error(`Error HTTP: ${response.status}`);
+    }
+    const jsonData = await response.json();
+    mods.value = jsonData.results || [];
+    filteredMods.value = mods.value; // Inicializa los resultados filtrados
+  } catch (err) {
+    error.value = err.message || "Error desconocido";
+  }
+};
 
 // Cargar los mods al montar el componente
 onMounted(() => {
   fetchNoti();
+  fetchMods();
 });
 </script>
 
@@ -99,15 +165,17 @@ header {
   left: 0;
   background: #a710ac54;
   width: 100vw;
+  height: 10dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 1% 0;
-  z-index: 100;
+  z-index: 100 !important;
   padding: 0;
   margin: 0;
   backdrop-filter: blur(10px);
+  box-shadow: 0px 0px 10px 5px rgba(0, 0, 0, 0.589);
 }
 .notificaciones_header {
   width: 100%;
@@ -221,7 +289,104 @@ nav .enlaces a {
 #cerrarMenu {
   display: none;
 }
-@media screen and (max-width: 800px) {
+#searchButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.search_bar {
+  position: fixed;
+  z-index: 80 !important;
+  width: 100%;
+  height: 10dvh;
+  top: 10dvh;
+  left: 0;
+  padding: 1% 10%;
+  background: #a710ac7a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  transition: all 0.5s linear;
+  transform: translateY(-300px);
+  opacity: 0;
+  visibility: hidden;
+}
+.search_bar.active {
+  transform: translate(0px);
+  opacity: 1;
+  visibility: visible;
+}
+.search_bar .container_search_bar {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-items: center;
+  flex-direction: column;
+}
+.container_search_bar input {
+  border: none;
+  width: 100%;
+  padding: 1% 2.5rem;
+}
+.container_results {
+  position: fixed;
+  top: 7.7dvh;
+  left: 10%;
+  width: 80%;
+  background: #fff;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  z-index: 90;
+}
+.container_results li {
+  position: relative;
+  width: 100%;
+  height: 5dvh !important;
+  border: solid 2px transparent;
+  border-bottom: #00000056 solid 1px;
+  opacity: 0.8;
+  transition: all 0.3s linear;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.container_results li:hover {
+  opacity: 1;
+  background: #00000017;
+}
+.container_results li a {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  padding: 2% 1%;
+  align-items: center;
+  text-decoration: none;
+  gap: 1rem;
+  color: #000;
+}
+.icon_search_ico {
+  position: absolute;
+  top: 0.6rem;
+  left: 0.5rem;
+  width: 1.5rem;
+}
+.icon_search_ico img {
+  width: 100%;
+}
+#cerrar_bar {
+  position: fixed;
+  top: 10dvh;
+  width: 100%;
+  height: 100dvh;
+  background: #00000059;
+  backdrop-filter: blur(5px);
+  z-index: 70 !important;
+}
+@media screen and (max-width: 900px) {
   #buttonMenu {
     display: block;
   }
@@ -259,6 +424,22 @@ nav .enlaces a {
 
   .container_buttons_header {
     width: 100%;
+  }
+  .search_bar {
+    width: 100vw;
+    top: 0%;
+    background: #a610ac;
+  }
+  .icon_search_ico {
+    width: 1rem;
+    top: 0.05rem;
+  }
+  .search_bar input {
+    padding-left: 1.6rem !important;
+  }
+  #cerrar_bar {
+    background: #a710ac91;
+    backdrop-filter: blur(30px) !important;
   }
 }
 </style>
