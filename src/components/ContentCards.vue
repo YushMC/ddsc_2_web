@@ -16,6 +16,13 @@
           </button>
 
           <span>Página {{ currentPage }} de {{ totalPages }}</span>
+
+          <button
+            :disabled="currentPage === totalPages"
+            @click="changePage(currentPage + 1)"
+          >
+            Siguiente
+          </button>
           <input
             type="number"
             v-model="inputPage"
@@ -24,12 +31,6 @@
             :max="totalPages"
             placeholder="Ir a página"
           />
-          <button
-            :disabled="currentPage === totalPages"
-            @click="changePage(currentPage + 1)"
-          >
-            Siguiente
-          </button>
           <select v-model="itemsPerPage" @change="resetToFirstPage">
             <option :value="5">5 por página</option>
             <option :value="10">10 por página</option>
@@ -477,6 +478,10 @@ onMounted(() => {
   background: #a610ac;
   color: #fff;
   text-decoration: none;
+}
+.container_options .visualizar button {
+  background: #a610ac !important;
+  color: #fff;
 }
 
 button:disabled {

@@ -15,11 +15,15 @@
       <h1>Sitio en construcción y experimental</h1>
     </div>
     <div class="container_header">
-      <div class="container_sitio">
-        <img src="" alt="" />
+      <router-link class="container_sitio" to="/" style="text-decoration: none">
+        <img
+          src="https://www.dokidokispanish.club/assets/gui/Logo_DDSC.png"
+          alt=""
+          style="width: 3rem"
+        />
         <h1>Doki Doki Spanish Club</h1>
-      </div>
-      <nav>
+      </router-link>
+      <nav :class="{ active: isMenuResponsive }">
         <div class="enlaces">
           <a
             href="https://www.dokidokispanish.club/Doki-Doki-Literature-Club"
@@ -28,13 +32,7 @@
           >
         </div>
         <div class="enlaces">
-          <router-link to="/">Inicio</router-link>
-        </div>
-        <div class="enlaces">
           <router-link to="/traducciones" href="">Traducciones</router-link>
-          <div class="submenu">
-            <a href="">Hola</a>
-          </div>
         </div>
         <div class="enlaces">
           <router-link to="/mods">Mods</router-link>
@@ -44,10 +42,14 @@
           <a href="">Comunidad</a>
         </div>
          -->
+        <div class="container_buttons_header">
+          <a href="https://www.dokidokispanish.club/">Sitio clásico</a>
+        </div>
       </nav>
-      <div class="container_buttons_header">
-        <a href="https://www.dokidokispanish.club/">Sitio clásico</a>
-      </div>
+      <button id="buttonMenu" @click="toggleMenu" v-if="!isMenuResponsive">
+        Mostrar
+      </button>
+      <div id="cerrarMenu" v-if="isMenuResponsive" @click="toggleMenu"></div>
     </div>
   </header>
 </template>
@@ -55,11 +57,17 @@
 <script setup>
 import { onMounted, ref } from "vue";
 
+const isMenuResponsive = ref(false);
+
 const error = ref("");
 const ruta = ref("");
 const noti = ref("");
 
-const fetchMods = async () => {
+const toggleMenu = () => {
+  isMenuResponsive.value = !isMenuResponsive.value;
+};
+
+const fetchNoti = async () => {
   error.value = "";
 
   // Cambiar la URL según la ruta seleccionada
@@ -80,7 +88,7 @@ const fetchMods = async () => {
 
 // Cargar los mods al montar el componente
 onMounted(() => {
-  fetchMods();
+  fetchNoti();
 });
 </script>
 
@@ -145,8 +153,8 @@ header {
 }
 nav {
   width: 100%;
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  display: flex;
+  justify-content: space-around;
   gap: 2%;
   align-items: center;
 }
@@ -195,7 +203,6 @@ nav .enlaces a {
   z-index: 90 !important;
 }
 .container_buttons_header {
-  width: 20%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -206,5 +213,52 @@ nav .enlaces a {
   text-decoration: none;
   background: #000;
   border-radius: 5px;
+  text-wrap: nowrap;
+}
+#buttonMenu {
+  display: none;
+}
+#cerrarMenu {
+  display: none;
+}
+@media screen and (max-width: 800px) {
+  #buttonMenu {
+    display: block;
+  }
+  #cerrarMenu {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100dvh;
+    z-index: 80;
+    background: #0000004d;
+  }
+  .container_sitio {
+    width: 80%;
+  }
+  nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 50dvw;
+    height: 100dvh;
+    background: #a710ac9a;
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+    box-shadow: 0px 0px 60px 10px rgba(0, 0, 0, 0.589);
+    transform: translatex(-500px);
+    transition: all 0.3s ease-in-out;
+  }
+  nav.active {
+    transform: translateX(0px);
+  }
+
+  .container_buttons_header {
+    width: 100%;
+  }
 }
 </style>

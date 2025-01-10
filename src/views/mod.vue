@@ -7,7 +7,7 @@
           :modules="[Navigation, Pagination, Autoplay]"
           navigation
           pagination
-          :loop="true"
+          :loop="getValidImages(mod).length > 1"
           class="mySwiper"
           :space-between="10"
         >
@@ -61,22 +61,50 @@
         </div>
       </div>
     </div>
+
+    <div class="relacionados">
+      <h2>Mods Relacionados:</h2>
+      <Swiper
+        v-if="filteredItems.length"
+        :modules="[Navigation, Pagination]"
+        navigation
+        pagination
+        class="mySwiper"
+        :breakpoints="{
+          320: { slidesPerView: 1, spaceBetween: 10 }, // Teléfonos pequeños
+          640: { slidesPerView: 3, spaceBetween: 15 }, // Teléfonos más grandes
+          768: { slidesPerView: 4, spaceBetween: 20 }, // Tablets
+          1024: { slidesPerView: 5, spaceBetween: 25 }, // Pantallas grandes
+        }"
+      >
+        <swiper-slide v-for="relatedMod in filteredItems" :key="relatedMod.id">
+          <img :src="relatedMod.url_img" alt="Imagen del mod" />
+          <h3 style="text-align: center">{{ relatedMod.nombre }}</h3>
+          <h3>Genero: <br />{{ relatedMod.genero }}</h3>
+          <h3>Tipo: <br />{{ relatedMod.tipo_mod }}</h3>
+          <router-link :to="{ path: `/mod/${relatedMod.id}` }">Ver</router-link>
+        </swiper-slide>
+      </Swiper>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref, computed } from "vue";
+import { onMounted, ref, computed, watch } from "vue";
 import { Swiper, SwiperSlide } from "swiper/vue";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { Navigation, Pagination, Autoplay } from "swiper/modules";
+import { useRoute, useRouter } from "vue-router";
 
+const route = useRoute();
 const mod = ref({});
+const mods = ref([]);
 const error = ref("");
 
 const props = defineProps({
-  id: [String, Number], // Acepta cadenas o números
+  id: [String, Number],
 });
 
 const islinkPcDisable = computed(
@@ -92,33 +120,62 @@ const getValidImages = (mod) => {
     (url) => url && url.trim() !== ""
   );
 };
+
 const preventAction = (isDisabled) => {
   if (isDisabled) {
-    event.preventDefault(); // Evitar acción predeterminada
+    event.preventDefault();
   }
 };
-const fetchModsId = async () => {
+
+const filteredItems = computed(() => {
+  if (!mod.value || !mods.value.length) return [];
+  return mods.value.filter((modFilter) => {
+    // Evitar incluir el mod actual
+    return (
+      modFilter.genero === mod.value.genero &&
+      modFilter.enfoque === mod.value.enfoque
+    );
+  });
+});
+
+const fetchModsId = async (id) => {
   try {
     const response = await fetch(
-      `https://www.dokidokispanish.club/api_ddsc/mod/${props.id}`
+      `https://www.dokidokispanish.club/api_ddsc/mod/${id}`
     );
-    if (!response.ok) {
-      throw new Error(`Error HTTP: ${response.status}`);
-    }
+    if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+
     const jsonData = await response.json();
-
-    if (!jsonData.results || jsonData.results.length === 0) {
-      throw new Error("No se encontraron resultados.");
-    }
-
-    mod.value = jsonData.results[0];
+    mod.value = jsonData.results[0] || {};
   } catch (err) {
-    error.value = err.message || "Error desconocido";
+    error.value = err.message || "Error desconocido al cargar el mod.";
   }
 };
 
+const fetchMods = async () => {
+  try {
+    const response = await fetch(
+      "https://www.dokidokispanish.club/api_ddsc/mods"
+    );
+    if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+
+    const jsonData = await response.json();
+    mods.value = jsonData.results || [];
+  } catch (err) {
+    error.value = err.message || "Error desconocido al cargar los mods.";
+  }
+};
+// Detectar cambios en el parámetro de ruta "id"
+watch(
+  () => route.params.id,
+  (newId) => {
+    if (newId) fetchModsId(newId);
+    window.scrollTo({ top: 0, behavior: "smooth" }); // Desplazar al inicio
+  }
+);
 onMounted(() => {
-  fetchModsId();
+  fetchModsId(route.params.id);
+  fetchMods();
 });
 </script>
 
@@ -136,6 +193,18 @@ onMounted(() => {
   gap: 2rem;
   border-radius: 20px;
   overflow: hidden;
+}
+.relacionados {
+  width: 80%;
+  margin: 0% auto;
+  margin-bottom: 5%;
+  background: #ffffff5e;
+  padding: 1%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  border-radius: 20px;
 }
 .portada .content_swiper {
   position: relative;
@@ -224,6 +293,48 @@ onMounted(() => {
 .otros_datos div h4 {
   font-weight: 400;
 }
+
+.relacionados .swiper {
+  width: 80%;
+}
+
+.relacionados .swiper-slide {
+  width: 10dvw;
+  height: 45dvh;
+  border: 2px solid #a610ac;
+  border-radius: 10px;
+  padding: 1%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow: hidden;
+}
+
+.relacionados .swiper-slide img {
+  aspect-ratio: 1/1;
+  width: 100%;
+  height: 15dvh;
+  object-fit: contain;
+  border-radius: 10px !important;
+}
+.relacionados .swiper-slide h3 {
+  width: 100%;
+  font-weight: 600;
+  font-size: 1rem;
+  text-overflow: ellipsis !important;
+  text-wrap: nowrap;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.relacionados .swiper-slide a {
+  width: 100%;
+  padding: 2%;
+  background: #a610ac;
+  color: #fff;
+  border-radius: 10px;
+  text-decoration: none;
+}
 @media screen and (max-width: 1400px) {
   .portada {
     display: flex;
@@ -237,7 +348,6 @@ onMounted(() => {
 }
 @media screen and (max-width: 550px) {
   .portada {
-    margin-top: 25%;
     padding: 2%;
   }
   .content_info {

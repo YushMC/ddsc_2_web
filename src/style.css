@@ -13,7 +13,7 @@
 }
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.6s ease; /* Suaviza la transición */
+  transition: opacity 0.3s ease; /* Suaviza la transición */
 }
 
 .fade-enter-from,
@@ -50,6 +50,25 @@ select {
 button {
   cursor: pointer;
 }
+.content_info {
+  width: 80%;
+  margin: auto;
+  background: rgba(255, 255, 255, 0.644);
+  backdrop-filter: blur(10px);
+  border-radius: 5px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  align-items: center;
+  gap: 2%;
+  margin-bottom: 2%;
+}
+.content_info img {
+  width: 100%;
+  margin: 2%;
+  border-radius: 10px;
+  aspect-ratio: 16/9;
+  object-fit: contain;
+}
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
@@ -60,5 +79,10 @@ button {
   }
   button {
     background-color: #f9f9f9;
+  }
+}
+@media screen and (max-width: 600px) {
+  .estructura {
+    padding-top: 10dvh;
   }
 }
