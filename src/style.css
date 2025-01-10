@@ -30,6 +30,26 @@
   opacity: 0.2;
   cursor: not-allowed;
 }
+
+select {
+  background: none;
+  border: none;
+  border-bottom: 2px solid #a610ac;
+  cursor: pointer;
+}
+.filtros_busqueda {
+  flex-wrap: wrap;
+}
+.filtros_busqueda button {
+  background: #a610ac;
+  color: #fff;
+  border: none;
+  padding: 1%;
+  border-radius: 10px;
+}
+button {
+  cursor: pointer;
+}
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;

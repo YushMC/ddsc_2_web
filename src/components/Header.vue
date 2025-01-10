@@ -111,7 +111,7 @@ header {
   align-items: center;
 }
 .notificaciones_header h1 {
-  font-size: 1.2rem;
+  font-size: 1rem;
   color: #fff;
 }
 .notificaciones_header a {
@@ -140,7 +140,7 @@ header {
 }
 .container_sitio h1 {
   text-align: left;
-  font-size: 1.5rem;
+  font-size: 1rem;
   color: #fff;
 }
 nav {
