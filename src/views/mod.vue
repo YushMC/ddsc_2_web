@@ -4,11 +4,12 @@
       <div class="content_swiper">
         <Swiper
           v-if="getValidImages(mod).length"
-          :modules="[Navigation, Pagination, Autoplay]"
+          :modules="[Navigation, Pagination, Autoplay, FreeMode, Thumbs]"
           navigation
           pagination
+          :thumbs="{ swiper: thumbsSwiper }"
           :loop="getValidImages(mod).length > 1"
-          class="mySwiper"
+          class="mySwiper2"
           :space-between="10"
         >
           <!-- Generar dinámicamente los slides con v-for -->
@@ -17,6 +18,21 @@
             :key="index"
           >
             <img :src="url" alt="Imagen del mod" />
+          </swiper-slide>
+        </Swiper>
+        <Swiper
+          @swiper="setThumbsSwiper"
+          :spaceBetween="10"
+          :slidesPerView="4"
+          :freeMode="true"
+          :watchSlidesProgress="true"
+          class="mySwiper"
+        >
+          <swiper-slide
+            v-for="(url, index) in getValidImages(mod)"
+            :key="index"
+          >
+            <img :src="url" alt="Imagen del mod" class="thumb_img" />
           </swiper-slide>
         </Swiper>
       </div>
@@ -95,8 +111,24 @@ import { Swiper, SwiperSlide } from "swiper/vue";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-import { Navigation, Pagination, Autoplay } from "swiper/modules";
+
+import "swiper/css/free-mode";
+import "swiper/css/navigation";
+import "swiper/css/thumbs";
+import {
+  Navigation,
+  Pagination,
+  Autoplay,
+  FreeMode,
+  Thumbs,
+} from "swiper/modules";
 import { useRoute, useRouter } from "vue-router";
+
+const thumbsSwiper = ref(null);
+
+const setThumbsSwiper = (swiper) => {
+  thumbsSwiper.value = swiper;
+};
 
 const route = useRoute();
 const mod = ref({});
@@ -213,9 +245,10 @@ onMounted(() => {
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
 }
 .swiper {
-  width: 50rem;
+  width: 40rem;
   height: 100%;
   margin: auto;
   padding-top: 50px;
@@ -249,6 +282,7 @@ onMounted(() => {
   flex-direction: column;
   gap: 2rem;
   overflow: hidden;
+  background: none !important;
 }
 
 .content_info p {
@@ -281,6 +315,7 @@ onMounted(() => {
 }
 
 .otros_datos {
+  width: 100%;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 2rem;
@@ -300,7 +335,7 @@ onMounted(() => {
 
 .relacionados .swiper-slide {
   width: 10dvw;
-  height: 45dvh;
+  height: fit-content !important;
   border: 2px solid #a610ac;
   border-radius: 10px;
   padding: 1%;
@@ -335,6 +370,23 @@ onMounted(() => {
   border-radius: 10px;
   text-decoration: none;
 }
+.mySwiper2 {
+  height: 80%;
+  width: 40rem;
+}
+.thumb_img {
+  cursor: pointer !important;
+  filter: brightness(0.5) !important;
+  transition: all 0.3s linear !important;
+}
+
+.thumb_img:hover {
+  filter: brightness(1) !important;
+}
+.swiper-slide-thumb-active .thumb_img {
+  filter: brightness(1) !important;
+}
+
 @media screen and (max-width: 1400px) {
   .portada {
     display: flex;
@@ -369,6 +421,13 @@ onMounted(() => {
   }
   .content_logo img {
     display: none;
+  }
+  .mySwiper2 {
+    width: 20rem !important;
+  }
+  .mySwiper {
+    display: none !important;
+    height: 50dvh !important;
   }
 }
 </style>

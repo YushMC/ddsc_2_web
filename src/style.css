@@ -69,6 +69,38 @@ button {
   aspect-ratio: 16/9;
   object-fit: contain;
 }
+
+.text-gradient {
+  display: flex;
+  font-weight: 700 !important;
+  font-size: 1.5rem !important;
+  text-align: center !important;
+  background: linear-gradient(
+    to right,
+    #ef5350,
+    #c76888,
+    #7e57c2,
+    #2196f3,
+    #26c6da,
+    #43a047
+  );
+  background-size: 200% 200%; /* Permite el movimiento del gradiente */
+  -webkit-background-clip: text; /* Recorta el fondo al texto */
+  -webkit-text-fill-color: transparent; /* Hace que el texto sea transparente */
+  animation: gradient-animation 3s infinite; /* Aplica la animación */
+}
+
+@keyframes gradient-animation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;

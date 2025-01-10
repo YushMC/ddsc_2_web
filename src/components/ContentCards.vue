@@ -93,12 +93,13 @@
           :key="mod.id"
           :class="mod.seleccion ? 'isSeleccion' : ''"
         >
-          <h3 class="nombre_mod">{{ mod.nombre }}</h3>
+          <h3 class="nombre_mod" :class="{ 'text-gradient': mod.seleccion }">
+            {{ mod.nombre }}
+          </h3>
           <div class="banner_img">
             <Swiper
               v-if="getValidImages(mod).length"
-              :modules="[Navigation, Pagination]"
-              navigation
+              :modules="[Pagination]"
               pagination
               class="mySwiper"
               :space-between="10"
@@ -110,11 +111,17 @@
                 <img :src="url" alt="Imagen del mod" />
               </swiper-slide>
             </Swiper>
+            <div class="container_img_logo">
+              <img :src="mod.url_logo" alt="" />
+            </div>
           </div>
           <div class="descripcion">
-            <h3><b>Genero:</b> {{ mod.genero }}</h3>
-            <h3><b>Duración:</b> {{ mod.duracion }}</h3>
-            <h3><b>Estado:</b> {{ mod.estado }}</h3>
+            <h3 class="text-gradient" v-if="mod.seleccion">
+              Selección de la Comunidad
+            </h3>
+            <h3><b>Género:</b> <br />{{ mod.genero }}</h3>
+            <h3><b>Duración:</b> <br />{{ mod.duracion }}</h3>
+            <h3><b>Estado:</b> <br />{{ mod.estado }}</h3>
           </div>
           <div class="botones_info">
             <router-link :to="{ path: `/mod/${mod.id}` }">Info</router-link>
@@ -331,6 +338,7 @@ onMounted(() => {
   border-top-style: solid;
   border-top-color: #a610ac;
   box-sizing: border-box;
+  user-select: none !important;
 }
 .container_cards h2:first-child {
   /* position: sticky;
@@ -384,7 +392,9 @@ onMounted(() => {
   padding: 4%;
   transition: all 0.3s linear;
 }
-
+.card:hover {
+  transform: scale(1.03);
+}
 .space_cards .card {
   display: grid;
   grid-template-rows: repeat(4, 1fr);
@@ -408,7 +418,7 @@ onMounted(() => {
   border-image-source: conic-gradient(
     from var(--a),
     #a610ac,
-    #a610acbe,
+    #2196f3be,
     #a610ac00
   );
   border-image-slice: 1 1 1 1;
@@ -428,11 +438,38 @@ onMounted(() => {
   width: 100%;
   filter: drop-shadow(2px 5px 10px #000000);
 }
+
 .banner_img {
+  position: relative;
   width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
+}
+.container_img_logo {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 80;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(2px);
+  border-radius: 10px;
+  transition: all 0.3s linear;
+}
+.banner_img:hover .container_img_logo {
+  transform: translateY(-80px) scale(0.5);
+  opacity: 0;
+  visibility: hidden;
+  background: none !important;
+}
+.container_img_logo img {
+  width: 7rem !important;
+  aspect-ratio: 1/1 !important;
+  object-fit: contain !important;
 }
 .space_cards_2 .banner_img .swiper {
   width: 200px;
@@ -441,12 +478,7 @@ onMounted(() => {
 .banner_img .swiper {
   transition: all 0.3s linear;
 }
-.banner_img:hover .swiper {
-  transform: scale(1.1);
-  position: relative;
-  z-index: 90;
-  filter: drop-shadow(0px 5px 50px #000000);
-}
+
 .banner_img img {
   width: 100%;
   aspect-ratio: 16/9;
@@ -460,7 +492,7 @@ onMounted(() => {
 }
 .descripcion h3 {
   font-weight: 350;
-  font-size: 1rem;
+  font-size: 1.1rem;
 }
 
 .botones_info {
