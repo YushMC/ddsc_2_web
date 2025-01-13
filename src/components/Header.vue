@@ -37,6 +37,12 @@
         <div class="enlaces">
           <router-link to="/mods">Mods</router-link>
         </div>
+        <div class="enlaces">
+          <router-link to="/login"
+            ><span v-if="!isLoginUser">Cuenta</span
+            ><img :src="url_logo" alt="" id="logoUser" v-else
+          /></router-link>
+        </div>
         <!-- 
         <div class="enlaces">
           <a href="">Comunidad</a>
@@ -90,11 +96,13 @@
 
 <script setup>
 import { onMounted, ref } from "vue";
-
+const isLoginUser = ref(false);
 const isMenuResponsive = ref(false);
 const isActiveSearchBar = ref(false);
 
 const mods = ref([]);
+const user_id = ref(0);
+const url_logo = ref("");
 const searchQuery = ref(""); // Consulta de búsqueda
 const filteredMods = ref([]); // Resultados filtrados
 
@@ -151,10 +159,29 @@ const fetchMods = async () => {
   }
 };
 
+const fetchDataUserId = async (id) => {
+  try {
+    const response = await fetch(
+      `https://www.dokidokispanish.club/api_ddsc/user/${id}`
+    );
+    if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+
+    const jsonData = await response.json();
+    url_logo.value = jsonData.results[0].url_logo;
+  } catch (err) {
+    error.value = err.message || "Error desconocido al cargar el mod.";
+  }
+};
+
 // Cargar los mods al montar el componente
 onMounted(() => {
   fetchNoti();
   fetchMods();
+  if (localStorage.getItem("user")) {
+    user_id.value = localStorage.getItem("user");
+    fetchDataUserId(user_id.value);
+    isLoginUser.value = true;
+  }
 });
 </script>
 
@@ -293,6 +320,13 @@ nav .enlaces a {
   background: none;
   border: none;
   cursor: pointer;
+}
+#logoUser {
+  margin-top: 2%;
+  width: 2rem;
+  border-radius: 100%;
+  aspect-ratio: 1/1;
+  object-fit: cover;
 }
 .search_bar {
   position: fixed;

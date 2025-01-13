@@ -3,7 +3,7 @@
     <h2>{{ seccion_titulo }} ({{ totalData }})</h2>
     <div class="container_options">
       <div class="visualizar">
-        <button @click="toggleViews" id="toggleView">
+        <button @click="toggleViews" id="toggleView" v-if="isLoginUser">
           <img v-if="!isActive" src="../assets/gui/list_icon.svg" alt="" />
           <img src="../assets/gui/grid_icon.svg" alt="" v-else />
         </button>
@@ -30,8 +30,13 @@
             :min="1"
             :max="totalPages"
             placeholder="Ir a página"
+            v-if="isLoginUser"
           />
-          <select v-model="itemsPerPage" @change="resetToFirstPage">
+          <select
+            v-model="itemsPerPage"
+            @change="resetToFirstPage"
+            v-if="isLoginUser"
+          >
             <option :value="5">5 por página</option>
             <option :value="10">10 por página</option>
             <option :value="15">15 por página</option>
@@ -40,7 +45,7 @@
           </select>
         </div>
       </div>
-      <div class="filtros_busqueda" v-if="seleccion_ruta >= 5">
+      <div class="filtros_busqueda" v-if="seleccion_ruta >= 5 && isLoginUser">
         <h4>Filtros:</h4>
         <select v-model="filters.genero">
           <option value="">Todos los géneros</option>
@@ -139,6 +144,8 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { Navigation, Pagination } from "swiper/modules";
+
+const isLoginUser = ref(false);
 
 // Props y estado
 const props = defineProps({
@@ -317,6 +324,9 @@ const fetchMods = async () => {
 // Cargar los mods al montar el componente
 onMounted(() => {
   fetchMods();
+  if (localStorage.getItem("user")) {
+    isLoginUser.value = true;
+  }
 });
 </script>
 
