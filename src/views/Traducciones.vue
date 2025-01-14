@@ -6,7 +6,13 @@
         alt=""
       />
       <div class="content_text">
-        <h1>DDSCs</h1>
+        <h1>Traducciones</h1>
+        <p>
+          Bienvenido a nuestra nueva sección de traducciones!<br /><br />
+          Ahora con filtros de busqueda y modos de visualización en la misma
+          página! <br /><br />
+          Actualizamos de manera constante!
+        </p>
       </div>
     </div>
     <ContentCards :solicitud="5"></ContentCards>

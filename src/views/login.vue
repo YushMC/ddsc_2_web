@@ -14,6 +14,14 @@
       <p v-if="errorMessage" style="color: red">{{ errorMessage }}</p>
     </form>
     <button v-else @click="logout" class="exit">Cerrar Sesión</button>
+    <a
+      href="https://www.dokidokispanish.club/cuenta/editar-perfil"
+      target="_blank"
+      class="externo"
+      v-if="isLoginUser"
+    >
+      Más opciones de cuenta
+    </a>
   </div>
 </template>
 
@@ -97,6 +105,10 @@ onMounted(() => {
   border-radius: 10px;
   cursor: pointer;
 }
+.estructura {
+  position: relative;
+  height: 70dvh !important;
+}
 .exit {
   width: 80%;
   margin: 0 10%;
@@ -107,6 +119,19 @@ onMounted(() => {
   font-size: 1rem;
   font-weight: 700;
   border: none;
+  border-radius: 10px;
+}
+.externo {
+  display: flex;
+  width: 80%;
+  background: #a710ac;
+  color: #fff;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 10%;
+  margin-bottom: 2%;
+  padding: 2%;
   border-radius: 10px;
 }
 </style>

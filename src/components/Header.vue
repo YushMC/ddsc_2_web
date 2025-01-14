@@ -116,6 +116,7 @@ const toggleMenu = () => {
 
 const toggleSearchBar = () => {
   isActiveSearchBar.value = !isActiveSearchBar.value;
+  searchQuery.value = "";
 };
 // Filtrar mods en base al texto de búsqueda
 const filterMods = () => {
