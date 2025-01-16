@@ -4,6 +4,7 @@
   font-weight: 400;
 
   /* color-scheme: light dark; */
+  
 }
 
 * {
@@ -34,14 +35,14 @@
 select {
   background: none;
   border: none;
-  border-bottom: 2px solid #a610ac;
+  border-bottom: 2px solid var(--color_fondo);
   cursor: pointer;
 }
 .filtros_busqueda {
   flex-wrap: wrap;
 }
 .filtros_busqueda button {
-  background: #a610ac;
+  background: var(--color_fondo);
   color: #fff;
   border: none;
   padding: 1%;

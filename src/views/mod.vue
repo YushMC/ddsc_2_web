@@ -78,7 +78,7 @@
       </div>
     </div>
 
-    <div class="relacionados">
+    <div class="relacionados" v-if="filteredItems.length > 1">
       <h2>Mods Relacionados:</h2>
       <Swiper
         v-if="filteredItems.length"
@@ -89,8 +89,7 @@
         :breakpoints="{
           320: { slidesPerView: 1, spaceBetween: 10 }, // Teléfonos pequeños
           640: { slidesPerView: 3, spaceBetween: 15 }, // Teléfonos más grandes
-          768: { slidesPerView: 4, spaceBetween: 20 }, // Tablets
-          1024: { slidesPerView: 5, spaceBetween: 25 }, // Pantallas grandes
+          768: { slidesPerView: 4, spaceBetween: 20 },  // Pantallas grandes
         }"
       >
         <swiper-slide v-for="relatedMod in filteredItems" :key="relatedMod.id">
@@ -237,6 +236,7 @@ onMounted(() => {
   flex-direction: column;
   gap: 1rem;
   border-radius: 20px;
+  backdrop-filter: blur(10px);
 }
 .portada .content_swiper {
   position: relative;
@@ -283,6 +283,7 @@ onMounted(() => {
   gap: 2rem;
   overflow: hidden;
   background: none !important;
+  backdrop-filter: none !important;
 }
 
 .content_info p {
@@ -330,13 +331,13 @@ onMounted(() => {
 }
 
 .relacionados .swiper {
-  width: 80%;
+  width: 90%;
 }
 
 .relacionados .swiper-slide {
-  width: 10dvw;
+  width: 8dvw;
   height: fit-content !important;
-  border: 2px solid #a610ac;
+  border: 2px solid var(--color_fondo);
   border-radius: 10px;
   padding: 1%;
   display: flex;
@@ -365,7 +366,7 @@ onMounted(() => {
 .relacionados .swiper-slide a {
   width: 100%;
   padding: 2%;
-  background: #a610ac;
+  background: var(--color_fondo);
   color: #fff;
   border-radius: 10px;
   text-decoration: none;

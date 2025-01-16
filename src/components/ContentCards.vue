@@ -346,7 +346,7 @@ onMounted(() => {
   flex-direction: column;
   border-top-width: 0.5rem;
   border-top-style: solid;
-  border-top-color: #a610ac;
+  border-top-color: var(--color_fondo);
   box-sizing: border-box;
   user-select: none !important;
 }
@@ -357,7 +357,7 @@ onMounted(() => {
   position: relative;
 
   text-align: center;
-  background: #a610ac;
+  background: var(--color_fondo);
   box-shadow: 0px 0px 50px 5px rgba(8, 8, 8, 0.39);
   border-radius: 5px;
   color: #fff;
@@ -427,9 +427,9 @@ onMounted(() => {
   border: 10px solid transparent;
   border-image-source: conic-gradient(
     from var(--a),
-    #a610ac,
+    var(--color_fondo),
     #2196f3be,
-    #a610ac00
+    var(--color_fondo)00
   );
   border-image-slice: 1 1 1 1;
   border-image-width: 0.25rem;
@@ -517,12 +517,12 @@ onMounted(() => {
   text-align: center;
   padding: 2%;
   border-radius: 10px;
-  background: #a610ac;
+  background: var(--color_fondo);
   color: #fff;
   text-decoration: none;
 }
 .container_options .visualizar button {
-  background: #a610ac !important;
+  background: var(--color_fondo) !important;
   color: #fff;
 }
 
@@ -547,7 +547,7 @@ button:disabled {
 }
 .visualizar .pagination button {
   border-radius: 10px;
-  border: 2px solid #a610ac;
+  border: 2px solid var(--color_fondo);
   padding: 1%;
   background: none;
 }
@@ -575,7 +575,7 @@ button:disabled {
   }
 }
 #toggleView {
-  border: 2px solid #a610ac;
+  border: 2px solid var(--color_fondo);
   background: none;
   cursor: pointer;
   display: flex;

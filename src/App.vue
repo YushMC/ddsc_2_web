@@ -27,12 +27,30 @@ const fetchDataUserId = async (id) => {
   }
 };
 
+const defaultColor = ref('#a610ac'); // Color predeterminado
+const defaultColorTrasnparent = ref( '54'); // Color predeterminado
+const selectedColor = ref(defaultColor);
+
+function updateColor() {
+  setRootColor(selectedColor.value); // Aplica el nuevo color
+  localStorage.setItem('myColor', selectedColor.value); // Guarda el color en el localStorage
+}
+
+function setRootColor(color) {
+  const root = document.documentElement;
+  root.style.setProperty('--color_fondo', color);
+  root.style.setProperty('--color_fondo_transparente', color + defaultColorTrasnparent.value);
+}
+
 onMounted(() => {
   if (localStorage.getItem("user")) {
     user_id.value = localStorage.getItem("user");
     fetchDataUserId(user_id.value);
     isLoginUser.value = true;
   }
+  const storedColor = localStorage.getItem('myColor') || defaultColor;
+  selectedColor.value = storedColor;
+  setRootColor(storedColor); // Aplica el color al :root
 });
 </script>
 
@@ -44,27 +62,25 @@ onMounted(() => {
         <component :is="Component" />
       </transition>
     </router-view>
+    <Footer></Footer>
   </main>
-  <Footer></Footer>
-  <!-- 
+  
+  
   <div class="aspect" v-if="isLoginUser">
     <div class="options">
-      <label for="opacidad">Opacidad:</label>
+      <label for="opacidad">Color principal:</label>
       <input
-        type="range"
-        min="0"
-        max="100"
-        step="1"
-        v-model="opacity"
-        class="range-slider"
-        id="opacidad"
+        type="color"
+         v-model="selectedColor" @input="updateColor"
       />
     </div>
   </div>
-  -->
 </template>
 
-<style scoped>
+<style>
+:root {
+  --my-global-color: #a610ac;
+}
 main {
   width: 100%;
   position: relative;
@@ -83,6 +99,8 @@ main {
   width: 20dvw;
   background: #fff;
   display: flex;
+  flex-direction: column;
+  gap: 1rem;
   padding: 1%;
   border-radius: 10px;
 }

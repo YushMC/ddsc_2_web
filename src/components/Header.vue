@@ -191,7 +191,7 @@ header {
   position: fixed;
   top: 0;
   left: 0;
-  background: #a710ac54;
+  background: var(--color_fondo_transparente);
   width: 100vw;
   height: 10dvh;
   display: flex;
@@ -207,7 +207,7 @@ header {
 }
 .notificaciones_header {
   width: 100%;
-  background: #a610ac;
+  background: var(--color_fondo);
   height: 50%;
   overflow: hidden;
   display: flex;
@@ -463,7 +463,7 @@ nav .enlaces a {
   .search_bar {
     width: 100vw;
     top: 0%;
-    background: #a610ac;
+    background: var(--color_fondo);
   }
   .icon_search_ico {
     width: 1rem;

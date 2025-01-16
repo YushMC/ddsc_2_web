@@ -27,25 +27,27 @@
 
 <style scoped>
 footer {
+  width: 100%;
   display: flex;
   flex-direction: column;
-  background: #a610ac52;
-  backdrop-filter: blur(10px);
+  background: none;
   position: relative;
   bottom: 0;
 }
 .container_footer {
-  max-width: 1000px;
   width: 100%;
-  margin: auto;
+  padding: 0 10%;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 2%;
+  background: var(--color_fondo_transparente);
+  backdrop-filter: blur(10px);
 }
 .container_footer div:first-child {
   display: grid;
   grid-template-columns: 1fr 4fr;
   align-items: center;
+  
 }
 .container_footer div {
   display: flex;
@@ -60,7 +62,7 @@ footer > div:last-child {
   justify-content: center;
   align-items: center;
   padding: 1% 0;
-  background: #a610ac;
+  background: var(--color_fondo);
   color: #fff;
 }
 @media screen and (max-width: 600px) {
