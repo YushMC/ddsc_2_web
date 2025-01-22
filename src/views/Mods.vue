@@ -20,6 +20,7 @@
 </template>
 
 <script setup>
+document.title = "Mods - Doki Doki Spanish Club";
 import ContentCards from "../components/ContentCards.vue";
 </script>
 

@@ -27,19 +27,22 @@ const fetchDataUserId = async (id) => {
   }
 };
 
-const defaultColor = ref('#a610ac'); // Color predeterminado
-const defaultColorTrasnparent = ref( '54'); // Color predeterminado
+const defaultColor = ref("#a610ac"); // Color predeterminado
+const defaultColorTrasnparent = ref("54"); // Color predeterminado
 const selectedColor = ref(defaultColor);
 
 function updateColor() {
   setRootColor(selectedColor.value); // Aplica el nuevo color
-  localStorage.setItem('myColor', selectedColor.value); // Guarda el color en el localStorage
+  localStorage.setItem("myColor", selectedColor.value); // Guarda el color en el localStorage
 }
 
 function setRootColor(color) {
   const root = document.documentElement;
-  root.style.setProperty('--color_fondo', color);
-  root.style.setProperty('--color_fondo_transparente', color + defaultColorTrasnparent.value);
+  root.style.setProperty("--color_fondo", color);
+  root.style.setProperty(
+    "--color_fondo_transparente",
+    color + defaultColorTrasnparent.value
+  );
 }
 
 onMounted(() => {
@@ -47,10 +50,14 @@ onMounted(() => {
     user_id.value = localStorage.getItem("user");
     fetchDataUserId(user_id.value);
     isLoginUser.value = true;
+    const storedColor = localStorage.getItem("myColor") || defaultColor.value;
+    selectedColor.value = storedColor;
+    setRootColor(storedColor); // Aplica el color al :root
+  } else {
+    const storedColor = defaultColor.value;
+    selectedColor.value = storedColor;
+    setRootColor(storedColor); // Aplica el color al :root
   }
-  const storedColor = localStorage.getItem('myColor') || defaultColor;
-  selectedColor.value = storedColor;
-  setRootColor(storedColor); // Aplica el color al :root
 });
 </script>
 
@@ -64,15 +71,11 @@ onMounted(() => {
     </router-view>
     <Footer></Footer>
   </main>
-  
-  
+
   <div class="aspect" v-if="isLoginUser">
     <div class="options">
       <label for="opacidad">Color principal:</label>
-      <input
-        type="color"
-         v-model="selectedColor" @input="updateColor"
-      />
+      <input type="color" v-model="selectedColor" @input="updateColor" />
     </div>
   </div>
 </template>

@@ -89,7 +89,7 @@
         :breakpoints="{
           320: { slidesPerView: 1, spaceBetween: 10 }, // Teléfonos pequeños
           640: { slidesPerView: 3, spaceBetween: 15 }, // Teléfonos más grandes
-          768: { slidesPerView: 4, spaceBetween: 20 },  // Pantallas grandes
+          768: { slidesPerView: 4, spaceBetween: 20 }, // Pantallas grandes
         }"
       >
         <swiper-slide v-for="relatedMod in filteredItems" :key="relatedMod.id">
@@ -207,6 +207,7 @@ watch(
 onMounted(() => {
   fetchModsId(route.params.id);
   fetchMods();
+  document.title = mod.value.name + " - Doki Doki Spanish Club";
 });
 </script>
 

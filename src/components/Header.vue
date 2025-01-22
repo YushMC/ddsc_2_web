@@ -24,6 +24,7 @@
         <h1>Doki Doki Spanish Club</h1>
       </router-link>
       <nav :class="{ active: isMenuResponsive }">
+        <!-- 
         <div class="enlaces">
           <a
             href="https://www.dokidokispanish.club/Doki-Doki-Literature-Club"
@@ -31,6 +32,7 @@
             >DDLC</a
           >
         </div>
+        -->
         <div class="enlaces">
           <router-link to="/traducciones" href="">Traducciones</router-link>
         </div>
