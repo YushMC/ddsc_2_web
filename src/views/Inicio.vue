@@ -4,6 +4,7 @@
       <img
         src="https://www.dokidokispanish.club/assets/gui/banner_inicio.jpg"
         alt=""
+        loading="lazy"
       />
       <div class="content_text">
         <h1>DDSCs</h1>

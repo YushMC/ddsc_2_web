@@ -11,7 +11,7 @@
             >
             <input type="text" v-model="alias" />
           </div>
-          <button type="submit" @click.prevent="changeAlias">
+          <button type="submit" @click.prevent="changeAliasName">
             Cambiar Alias
           </button>
         </form>
@@ -29,12 +29,14 @@
               src="/gui/visible_pswd.svg"
               v-if="isPassword1Visible"
               @click.prevent="togglePaswword1"
+              loading="lazy"
             />
             <img
               src="/gui/hidden_pswd.svg"
               alt=""
               v-else
               @click.prevent="togglePaswword1"
+              loading="lazy"
             />
           </div>
           <div class="container_input">
@@ -47,12 +49,14 @@
               src="/gui/visible_pswd.svg"
               v-if="isPassword2Visible"
               @click.prevent="togglePaswword2"
+              loading="lazy"
             />
             <img
               src="/gui/hidden_pswd.svg"
               alt=""
               v-else
               @click.prevent="togglePaswword2"
+              loading="lazy"
             />
           </div>
           <button type="submit" @click.prevent="changePassword">
@@ -92,7 +96,7 @@ import { useModalCuenta } from "../../composables/useModalCuenta";
 const { isActiveModal } = useModalCuenta();
 
 import { useInfoToken } from "../../composables/useInfoToken";
-const { getToken, tokenData } = useInfoToken();
+const { getToken, tokenData, isAuthenticated } = useInfoToken();
 
 import { useSessionStore } from "@/stores/session";
 import Swal from "sweetalert2";
@@ -126,13 +130,7 @@ const changePassword = async () => {
     return false;
   } else {
     try {
-      const success = await sessionStore.changePswd(
-        password2.value,
-        password1.value
-      );
-      if (success) {
-        getToken();
-      }
+      await sessionStore.changePswd(password2.value, password1.value);
     } catch (error) {
       Swal.fire({
         icon: "error",
@@ -146,19 +144,13 @@ const changePassword = async () => {
 const changePhoto = async (event) => {
   const file = event.target.files[0];
   if (file) {
-    const success = await sessionStore.updatePhoto(file);
-    if (success) {
-      getToken();
-    }
+    await sessionStore.updatePhoto(file);
   }
 };
 
-const changeAlias = async () => {
+const changeAliasName = async () => {
   if (alias.value.trim() !== "") {
-    const success = await sessionStore.updatePhoto(file);
-    if (success) {
-      getToken();
-    }
+    await sessionStore.changeAlias(alias.value);
   } else {
     Swal.fire({
       icon: "error",
@@ -170,20 +162,14 @@ const changeAlias = async () => {
 const changeBanner = async (event) => {
   const file = event.target.files[0];
   if (file) {
-    const success = await sessionStore.updateBanner(file);
-    if (success) {
-      getToken();
-    }
+    await sessionStore.updateBanner(file);
   }
 };
 
 const changeWallpaper = async (event) => {
   const file = event.target.files[0];
   if (file) {
-    const success = await sessionStore.updateWallpaper(file);
-    if (success) {
-      getToken();
-    }
+    await sessionStore.updateWallpaper(file);
   }
 };
 </script>

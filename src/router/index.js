@@ -5,7 +5,7 @@ import Traducciones from "../views/Traducciones.vue";
 import Mods from "../views/Mods.vue";
 import Login from "../views/login.vue";
 import cuentaInicio from "../views/cuenta/index.vue";
-import cuentaEditar from "../views/cuenta/editar.vue";
+import { useInfoToken } from "../composables/useInfoToken.js";
 
 const routes = [
   {
@@ -40,20 +40,28 @@ const routes = [
     meta: { index: 0 },
   },
   {
-    path: "/cuenta/inicio",
+    path: "/cuenta",
     name: "cuenta",
     component: cuentaInicio,
-  },
-  {
-    path: "/cuenta/editar",
-    name: "Editar Cuenta",
-    component: cuentaEditar,
+    meta: { requiresAuth: true },
   },
 ];
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
+});
+
+router.beforeEach(async (to, from, next) => {
+  const { isAuthenticated, getToken } = useInfoToken();
+
+  if (to.meta.requiresAuth) {
+    await getToken();
+    if (!isAuthenticated.value) {
+      return next("/login");
+    }
+  }
+  next();
 });
 
 export default router;

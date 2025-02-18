@@ -17,7 +17,7 @@
             v-for="(url, index) in getValidImages(mod)"
             :key="index"
           >
-            <img :src="url" alt="Imagen del mod" />
+            <img :src="url" alt="Imagen del mod" loading="lazy" />
           </swiper-slide>
         </Swiper>
         <Swiper
@@ -32,14 +32,19 @@
             v-for="(url, index) in getValidImages(mod)"
             :key="index"
           >
-            <img :src="url" alt="Imagen del mod" class="thumb_img" />
+            <img
+              :src="url"
+              alt="Imagen del mod"
+              class="thumb_img"
+              loading="lazy"
+            />
           </swiper-slide>
         </Swiper>
       </div>
       <div class="content_info" style="background: none !important">
         <div class="content_logo">
           <h1>{{ mod.nombre }}</h1>
-          <img :src="mod.url_logo" alt="" />
+          <img :src="mod.url_logo" alt="" loading="lazy" />
         </div>
         <p>{{ mod.descripcion }}</p>
         <div class="enlaces">
@@ -93,7 +98,7 @@
         }"
       >
         <swiper-slide v-for="relatedMod in filteredItems" :key="relatedMod.id">
-          <img :src="relatedMod.url_img" alt="Imagen del mod" />
+          <img :src="relatedMod.url_img" alt="Imagen del mod" loading="lazy" />
           <h3 style="text-align: center">{{ relatedMod.nombre }}</h3>
           <h3>Genero: <br />{{ relatedMod.genero }}</h3>
           <h3>Tipo: <br />{{ relatedMod.tipo_mod }}</h3>
@@ -351,6 +356,7 @@ onMounted(async () => {});
   gap: 1rem;
   border-radius: 20px;
   backdrop-filter: blur(10px);
+  content-visibility: auto;
 }
 .portada .content_swiper {
   position: relative;
@@ -512,6 +518,7 @@ onMounted(async () => {});
   gap: 2rem;
   padding: 1%;
   border-radius: 20px;
+  content-visibility: auto;
 }
 .comentarios form,
 .comentarios ul {
@@ -529,6 +536,12 @@ onMounted(async () => {});
   justify-content: center;
   align-items: center;
   gap: 2rem;
+}
+@media screen and (max-width: 1772px) {
+  .portada .content_swiper {
+    width: 100%;
+    margin: 0;
+  }
 }
 @media screen and (max-width: 1400px) {
   .portada {

@@ -4,8 +4,13 @@
     <div class="container_options">
       <div class="visualizar">
         <button @click="toggleViews" id="toggleView" v-if="isAuthenticated">
-          <img v-if="!isActive" src="../assets/gui/list_icon.svg" alt="" />
-          <img src="../assets/gui/grid_icon.svg" alt="" v-else />
+          <img
+            v-if="!isActive"
+            src="../assets/gui/list_icon.svg"
+            alt=""
+            loading="lazy"
+          />
+          <img src="../assets/gui/grid_icon.svg" alt="" v-else loading="lazy" />
         </button>
         <div class="pagination">
           <button
@@ -116,11 +121,11 @@
                 v-for="(url, index) in getValidImages(mod)"
                 :key="index"
               >
-                <img :src="url" alt="Imagen del mod" />
+                <img :src="url" alt="Imagen del mod" loading="lazy" />
               </swiper-slide>
             </Swiper>
             <div class="container_img_logo">
-              <img :src="mod.url_logo" alt="" />
+              <img :src="mod.url_logo" alt="" loading="lazy" />
             </div>
           </div>
           <div class="descripcion">
@@ -348,6 +353,7 @@ onMounted(() => {
   border-top-color: var(--color_fondo);
   box-sizing: border-box;
   user-select: none !important;
+  content-visibility: auto;
 }
 .container_cards h2:first-child {
   /* position: sticky;

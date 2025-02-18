@@ -7,7 +7,7 @@
           <h3>Rol: {{ tokenData.rol_nombre }}</h3>
         </div>
         <picture>
-          <img :src="tokenData.url_logo" alt="" />
+          <img :src="tokenData.url_logo" alt="" loading="lazy" />
         </picture>
       </div>
       <div class="container_cards">
@@ -76,10 +76,7 @@
       </div>
     </div>
     <modalEdits></modalEdits>
-    <div
-      class="aspect"
-      v-if="route.path == '/cuenta/inicio' && isAuthenticated"
-    >
+    <div class="aspect" v-if="route.path == '/cuenta' && isAuthenticated">
       <div class="options">
         <label for="opacidad">Color principal:</label>
         <input type="color" v-model="selectedColor" @input="updateColor" />
@@ -255,6 +252,7 @@ function urlBase64ToUint8Array(base64String) {
   const rawData = window.atob(base64);
   return new Uint8Array([...rawData].map((char) => char.charCodeAt(0)));
 }
+document.title = "Cuenta - Doki Doki Spanish Club";
 </script>
 
 <style scoped>

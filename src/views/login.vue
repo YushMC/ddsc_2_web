@@ -28,12 +28,14 @@
             src="/gui/visible_pswd.svg"
             v-if="isPassword1Visible"
             @click.prevent="togglePaswword1"
+            loading="lazy"
           />
           <img
             src="/gui/hidden_pswd.svg"
             alt=""
             v-else
             @click.prevent="togglePaswword1"
+            loading="lazy"
           />
         </div>
         <button type="submit" @click.prevent="login">Entrar</button>
@@ -95,12 +97,14 @@
               src="/gui/visible_pswd.svg"
               v-if="isPassword1Visible"
               @click.prevent="togglePaswword1"
+              loading="lazy"
             />
             <img
               src="/gui/hidden_pswd.svg"
               alt=""
               v-else
               @click.prevent="togglePaswword1"
+              loading="lazy"
             />
             <span style="color: red" v-if="errorClass"
               >Las contraseñas no coinciden</span
@@ -117,12 +121,14 @@
               src="/gui/visible_pswd.svg"
               v-if="isPassword2Visible"
               @click.prevent="togglePaswword2"
+              loading="lazy"
             />
             <img
               src="/gui/hidden_pswd.svg"
               alt=""
               v-else
               @click.prevent="togglePaswword2"
+              loading="lazy"
             />
             <span style="color: red" v-if="errorClass"
               >Las contraseñas no coinciden</span
@@ -195,7 +201,7 @@ const login = async () => {
   if (success) {
     getToken();
     isAuthenticated.value = true;
-    router.push("/cuenta/inicio");
+    router.push("/cuenta");
   }
 };
 
@@ -240,7 +246,7 @@ const registerUser = async () => {
           );
           getToken();
           isAuthenticated.value = true;
-          router.push("/cuenta/inicio");
+          router.push("/cuenta");
         }
       });
     } else {
@@ -263,15 +269,16 @@ const verificar = async () => {
     localStorage.getItem("email").toString() || null
   );
 };
-onBeforeMount(() => {
-  if (isAuthenticated.value && tokenData.value !== undefined) {
-    router.push("/cuenta/inicio");
-  }
-});
+if (isAuthenticated.value && tokenData.value !== undefined) {
+  router.push("/cuenta/inicio");
+}
+
+onBeforeMount(() => {});
 onMounted(() => {
   if (localStorage.getItem("user")) {
     isLoginUser.value = true;
   }
+  document.title = "Iniciar Sesión - Doki Doki Spanish Club";
 });
 </script>
 

@@ -383,16 +383,16 @@ export const useSessionStore = defineStore("session", {
           }),
         }
       );
-      const data = await response.json();
       Swal.close();
       if (!response.ok) {
         Swal.fire({
           icon: "error",
           title: "Ocurrio un error al actualizar el alias.",
-          text: JSON.stringify(data.error),
+          text: JSON.stringify(response.json().data.error),
         });
         return false;
       }
+      const data = await response.json();
       Swal.fire({
         title: "Correcto!",
         icon: "success",

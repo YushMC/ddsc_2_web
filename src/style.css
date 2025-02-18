@@ -41,7 +41,7 @@ main {
   opacity: 1; /* El elemento alcanza o inicia en opacidad completa */
 }
 img {
-  content-visibility: img;
+  content-visibility: auto;
 }
 
 .enlace_desactivado {

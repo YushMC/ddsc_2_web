@@ -5,6 +5,7 @@
         <img
           src="https://www.dokidokispanish.club/assets/gui/Logo_DDSC.png"
           alt=""
+          loading="lazy"
         />
         <h2>Team DDSC Web</h2>
       </div>

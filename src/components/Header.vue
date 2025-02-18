@@ -20,6 +20,7 @@
           src="https://www.dokidokispanish.club/assets/gui/Logo_DDSC.png"
           alt=""
           style="width: 3rem"
+          loading="lazy"
         />
         <h1>Doki Doki Spanish Club</h1>
       </router-link>
@@ -40,7 +41,7 @@
           <router-link to="/mods">Mods</router-link>
         </div>
         <div class="enlaces">
-          <router-link to="/login"
+          <router-link to="/cuenta"
             ><span v-if="!isAuthenticated">Cuenta</span
             ><img :src="tokenData.url_logo" alt="" id="logoUser" v-else
           /></router-link>
@@ -54,12 +55,20 @@
           <a href="https://www.dokidokispanish.club/">Sitio clásico</a>
         </div>
         <button @click="toggleSearchBar" id="searchButton">
-          <img src="../assets/gui/icon_search_white.svg" alt="" />
+          <img
+            src="../assets/gui/icon_search_white.svg"
+            alt=""
+            loading="lazy"
+          />
         </button>
         <div class="search_bar" :class="{ active: isActiveSearchBar }">
           <div class="container_search_bar">
             <div class="icon_search_ico">
-              <img src="../assets/gui/icon_search_balck.svg" alt="" />
+              <img
+                src="../assets/gui/icon_search_balck.svg"
+                alt=""
+                loading="lazy"
+              />
             </div>
             <input
               type="text"
@@ -75,9 +84,11 @@
               v-if="searchQuery.length > 0"
             >
               <router-link :to="`/mod/${mod.id}`"
-                ><img src="../assets/gui/icon_search_balck.svg" alt="" />{{
-                  mod.nombre
-                }}</router-link
+                ><img
+                  src="../assets/gui/icon_search_balck.svg"
+                  alt=""
+                  loading="lazy"
+                />{{ mod.nombre }}</router-link
               >
             </li>
           </ul>

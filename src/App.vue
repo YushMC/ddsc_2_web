@@ -55,8 +55,10 @@ main {
   background-size: cover;
   background-attachment: fixed;
   background-repeat: no-repeat;
+  background-position: center;
   display: flex;
   flex-direction: column;
   position: relative;
+  min-height: 90dvh !important;
 }
 </style>

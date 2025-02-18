@@ -8,7 +8,11 @@
     >
       <div class="info">
         <div class="datos_user">
-          <img :src="`https://api.dokidokispanish.club/${props.logo}`" alt="" />
+          <img
+            :src="`https://api.dokidokispanish.club/${props.logo}`"
+            alt=""
+            loading="lazy"
+          />
           <h5>{{ props.user }}</h5>
         </div>
         <p>{{ props.comentario }}</p>
@@ -201,5 +205,14 @@ li {
   justify-content: start;
   align-items: center;
   background: rgba(0, 0, 0, 0.5);
+}
+@media screen and (max-width: 800px) {
+  .info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+  }
 }
 </style>
