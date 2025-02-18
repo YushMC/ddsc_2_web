@@ -32,6 +32,7 @@ footer {
   flex-direction: column;
   background: none;
   position: relative;
+  left: 0;
   bottom: 0;
 }
 .container_footer {
@@ -47,7 +48,6 @@ footer {
   display: grid;
   grid-template-columns: 1fr 4fr;
   align-items: center;
-  
 }
 .container_footer div {
   display: flex;
@@ -56,6 +56,7 @@ footer {
 }
 .container_footer div img {
   width: 100%;
+  aspect-ratio: 1/1;
 }
 footer > div:last-child {
   display: flex;

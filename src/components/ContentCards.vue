@@ -3,7 +3,7 @@
     <h2>{{ seccion_titulo }} ({{ totalData }})</h2>
     <div class="container_options">
       <div class="visualizar">
-        <button @click="toggleViews" id="toggleView" v-if="isLoginUser">
+        <button @click="toggleViews" id="toggleView" v-if="isAuthenticated">
           <img v-if="!isActive" src="../assets/gui/list_icon.svg" alt="" />
           <img src="../assets/gui/grid_icon.svg" alt="" v-else />
         </button>
@@ -30,12 +30,12 @@
             :min="1"
             :max="totalPages"
             placeholder="Ir a página"
-            v-if="isLoginUser"
+            v-if="isAuthenticated"
           />
           <select
             v-model="itemsPerPage"
             @change="resetToFirstPage"
-            v-if="isLoginUser"
+            v-if="isAuthenticated"
           >
             <option :value="5">5 por página</option>
             <option :value="10">10 por página</option>
@@ -45,7 +45,10 @@
           </select>
         </div>
       </div>
-      <div class="filtros_busqueda" v-if="seleccion_ruta >= 5 && isLoginUser">
+      <div
+        class="filtros_busqueda"
+        v-if="seleccion_ruta >= 5 && isAuthenticated"
+      >
         <h4>Filtros:</h4>
         <select v-model="filters.genero">
           <option value="">Todos los géneros</option>
@@ -145,8 +148,8 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { Navigation, Pagination } from "swiper/modules";
 
-const isLoginUser = ref(false);
-
+import { useInfoToken } from "../composables/useInfoToken";
+const { isAuthenticated } = useInfoToken();
 // Props y estado
 const props = defineProps({
   solicitud: {
@@ -154,7 +157,6 @@ const props = defineProps({
     required: true,
   },
 });
-console.log(props.solicitud);
 
 const mods = ref([]);
 const loading = ref(false);
@@ -324,9 +326,6 @@ const fetchMods = async () => {
 // Cargar los mods al montar el componente
 onMounted(() => {
   fetchMods();
-  if (localStorage.getItem("user")) {
-    isLoginUser.value = true;
-  }
 });
 </script>
 
@@ -429,7 +428,7 @@ onMounted(() => {
     from var(--a),
     var(--color_fondo),
     #2196f3be,
-    var(--color_fondo)00
+    var(--color_fondo) 00
   );
   border-image-slice: 1 1 1 1;
   border-image-width: 0.25rem;

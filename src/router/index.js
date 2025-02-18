@@ -4,6 +4,8 @@ import Mod from "../views/mod.vue";
 import Traducciones from "../views/Traducciones.vue";
 import Mods from "../views/Mods.vue";
 import Login from "../views/login.vue";
+import cuentaInicio from "../views/cuenta/index.vue";
+import cuentaEditar from "../views/cuenta/editar.vue";
 
 const routes = [
   {
@@ -36,6 +38,16 @@ const routes = [
     name: "Login",
     component: Login,
     meta: { index: 0 },
+  },
+  {
+    path: "/cuenta/inicio",
+    name: "cuenta",
+    component: cuentaInicio,
+  },
+  {
+    path: "/cuenta/editar",
+    name: "Editar Cuenta",
+    component: cuentaEditar,
   },
 ];
 

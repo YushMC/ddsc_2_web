@@ -1,80 +1,273 @@
 <template>
   <div class="estructura">
-    <form @submit.prevent="login" id="loginForm" v-if="!isLoginUser">
-      <input type="email" placeholder="Email" v-model="email" required />
-      <input
-        type="password"
-        name=""
-        id=""
-        placeholder="Contraseña"
-        v-model="password"
-        required
-      />
-      <input type="submit" value="Entrar" :disabled="isLoading" />
-      <p v-if="errorMessage" style="color: red">{{ errorMessage }}</p>
-    </form>
-    <button v-else @click="logout" class="exit">Cerrar Sesión</button>
-    <a
-      href="https://www.dokidokispanish.club/cuenta/editar-perfil"
-      target="_blank"
-      class="externo"
-      v-if="isLoginUser"
-    >
-      Más opciones de cuenta
-    </a>
+    <div class="container_switch">
+      <button :class="{ active: isloginActive }" @click="isloginActive = true">
+        Iniciar Sesión
+      </button>
+      <button
+        @click="isloginActive = false"
+        :class="{ active: !isloginActive }"
+      >
+        <span v-if="!sessionStore.codeNew">Crear Cuenta</span>
+        <span v-else>Verificar Cuenta</span>
+      </button>
+    </div>
+    <div class="container_forms">
+      <form :class="{ active: isloginActive }">
+        <div class="container_input">
+          <label for="">Correo Electrónico</label>
+          <input type="email" v-model="email" />
+        </div>
+        <div class="container_input">
+          <label for="">Contraseña</label>
+          <input
+            :type="isPassword1Visible ? 'text' : 'password'"
+            v-model="password"
+          />
+          <img
+            src="/gui/visible_pswd.svg"
+            v-if="isPassword1Visible"
+            @click.prevent="togglePaswword1"
+          />
+          <img
+            src="/gui/hidden_pswd.svg"
+            alt=""
+            v-else
+            @click.prevent="togglePaswword1"
+          />
+        </div>
+        <button type="submit" @click.prevent="login">Entrar</button>
+        <details>
+          <summary>Recuperar Cuenta</summary>
+          <div class="container_input">
+            <label for="">Código de recuperación</label>
+            <input type="text" v-model="recoveryCode" />
+            <button type="submit" @click.prevent="LoginRecovery">Entrar</button>
+          </div>
+        </details>
+      </form>
+      <form action="" :class="{ active: !isloginActive }">
+        <div
+          style="display: flex; flex-direction: column; width: 100%; gap: 2rem"
+          v-if="!sessionStore.codeNew"
+        >
+          <div class="container_input">
+            <label for="">Nombre de Usuario <span>*</span></label>
+            <input type="text" v-model="user" />
+          </div>
+          <div class="container_input">
+            <label for="">Correo Electrónico <span>*</span></label>
+            <input type="text" v-model="email" />
+          </div>
+          <div class="container_input">
+            <label for="">Nacionalidad: <span>*</span></label>
+            <select name="" id="" v-model="country">
+              <option value="1">Argentina</option>
+              <option value="2">Bolivia</option>
+              <option value="3">Chile</option>
+              <option value="4">Colombia</option>
+              <option value="5">Costa Rica</option>
+              <option value="6">Cuba</option>
+              <option value="7">Ecuador</option>
+              <option value="8">El Salvador</option>
+              <option value="9">España</option>
+              <option value="10">Estados Unidos de América</option>
+              <option value="11">Guatemala</option>
+              <option value="12">Honduras</option>
+              <option value="13">México</option>
+              <option value="14">Nicaragua</option>
+              <option value="15">Panamá</option>
+              <option value="16">Paraguay</option>
+              <option value="17">Perú</option>
+              <option value="18">Republica Dominicana</option>
+              <option value="19">Uruguay</option>
+              <option value="20">Venezuela</option>
+            </select>
+          </div>
+          <div class="container_input">
+            <label for="">Contraseña <span>*</span></label>
+            <input
+              :type="isPassword1Visible ? 'text' : 'password'"
+              v-model="password"
+              :class="{ error: errorClass }"
+            />
+            <img
+              src="/gui/visible_pswd.svg"
+              v-if="isPassword1Visible"
+              @click.prevent="togglePaswword1"
+            />
+            <img
+              src="/gui/hidden_pswd.svg"
+              alt=""
+              v-else
+              @click.prevent="togglePaswword1"
+            />
+            <span style="color: red" v-if="errorClass"
+              >Las contraseñas no coinciden</span
+            >
+          </div>
+          <div class="container_input">
+            <label for="">Repetir Contraseña <span>*</span></label>
+            <input
+              :type="isPassword2Visible ? 'text' : 'password'"
+              v-model="password2"
+              :class="{ error: errorClass }"
+            />
+            <img
+              src="/gui/visible_pswd.svg"
+              v-if="isPassword2Visible"
+              @click.prevent="togglePaswword2"
+            />
+            <img
+              src="/gui/hidden_pswd.svg"
+              alt=""
+              v-else
+              @click.prevent="togglePaswword2"
+            />
+            <span style="color: red" v-if="errorClass"
+              >Las contraseñas no coinciden</span
+            >
+          </div>
+          <h6 style="color: red">* Obligatorio</h6>
+
+          <button type="submit" @click.prevent="registerUser">Crear</button>
+        </div>
+        <div
+          v-else
+          style="display: flex; flex-direction: column; width: 100%; gap: 2rem"
+        >
+          <div class="container_input">
+            <label for="">Ingresa el código de verficación.</label>
+            <input
+              type="numbre"
+              maxlength="6"
+              minlength="6"
+              v-model="codeVerify"
+              placeholder="xxxxxx"
+            />
+            <button @click.prevent="verificar">Verificar</button>
+          </div>
+        </div>
+      </form>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
-import axios from "axios";
+import { onBeforeMount, onMounted, ref, watch } from "vue";
+import Swal from "sweetalert2";
+
+import { useRouter } from "vue-router";
+const router = useRouter();
+// import ReCaptcha from "../components/ReCaptcha.vue";
+
+import { useInfoToken } from "../composables/useInfoToken";
+const { getToken, isAuthenticated, tokenData } = useInfoToken();
+
 import { useSessionStore } from "@/stores/session";
+const sessionStore = useSessionStore();
+
+const isloginActive = ref(true);
+const isRecoveryActive = ref(false);
 
 const authStore = useSessionStore();
 const isLoginUser = ref(false);
 
 const email = ref("");
 const password = ref("");
-const errorMessage = ref("");
-const isLoading = ref(false);
+const isPassword1Visible = ref(false);
+const isPassword2Visible = ref(false);
+const password2 = ref("");
+const errorClass = ref(false);
+const country = ref(1);
+const user = ref("");
+const recoveryCode = ref("");
 
+const codeVerify = ref(0);
+const togglePaswword1 = () => {
+  isPassword1Visible.value = !isPassword1Visible.value;
+};
+const togglePaswword2 = () => {
+  isPassword2Visible.value = !isPassword2Visible.value;
+};
 const login = async () => {
-  isLoading.value = true;
-  errorMessage.value = "";
-
-  try {
-    const response = await axios.post(
-      "https://www.dokidokispanish.club/api_ddsc/login",
-      {
-        email: email.value,
-        password: password.value,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json", // Agregar el encabezado Content-Type
-        },
-      }
-    );
-
-    // Guardar el token recibido en el localStorage
-    const token = response.data.token;
-    localStorage.setItem("token", token);
-    const id_user = response.data.user;
-    localStorage.setItem("user", id_user);
-
-    alert("Inicio de sesión exitoso");
-    window.location.reload();
-  } catch (error) {
-    errorMessage.value = "Credenciales incorrectas o error del servidor.";
-  } finally {
-    isLoading.value = false;
+  const success = await sessionStore.login(email.value, password.value);
+  if (success) {
+    getToken();
+    isAuthenticated.value = true;
+    router.push("/cuenta/inicio");
   }
 };
 
-const logout = () => {
-  authStore.logout();
+const LoginRecovery = async () => {
+  if (!recoveryCode.value.trim() == "") {
+    const success = await sessionStore.loginRecovery(recoveryCode.value);
+    if (success) {
+      getToken();
+      isAuthenticated.value = true;
+      router.push("/cuenta/inicio");
+    }
+  }
 };
 
+watch(password2, (newValue) => {
+  if (password2.value.trim() !== password.value) {
+    errorClass.value = true;
+  } else {
+    errorClass.value = false;
+  }
+});
+
+const registerUser = async () => {
+  if (password2.value.trim() === password.value.trim()) {
+    if (user.value.trim() !== "" && password.value.trim() !== 0) {
+      Swal.fire({
+        icon: "warning",
+        title: "Se guardará el usuario con lo siguientes datos importantes!",
+        html: `<p>Nombre de usuario: <b>${user.value}</b><br>Correo: <b>${email.value}</b><br>Recomendamos revisar si son correctos estos datos antes de continuar!</p>`,
+        showCancelButton: true,
+        confirmButtonColor: "green",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "¡Crear Cuenta!",
+        allowOutsideClick: false, // Evita el cierre al hacer clic fuera
+      }).then((result) => {
+        if (result.isConfirmed) {
+          sessionStore.registerUser(
+            user.value,
+            email.value,
+            password.value,
+            country.value
+          );
+          getToken();
+          isAuthenticated.value = true;
+          router.push("/cuenta/inicio");
+        }
+      });
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "No pueden existir campos vacios!",
+      });
+    }
+  } else {
+    Swal.fire({
+      icon: "error",
+      title: "Las contraseñas no coinciden!",
+    });
+  }
+};
+
+const verificar = async () => {
+  await sessionStore.verify(
+    codeVerify.value,
+    localStorage.getItem("email").toString() || null
+  );
+};
+onBeforeMount(() => {
+  if (isAuthenticated.value && tokenData.value !== undefined) {
+    router.push("/cuenta/inicio");
+  }
+});
 onMounted(() => {
   if (localStorage.getItem("user")) {
     isLoginUser.value = true;
@@ -83,55 +276,51 @@ onMounted(() => {
 </script>
 
 <style scoped>
-#loginForm {
-  margin: 0 30%;
-  margin-bottom: 100px;
-  padding: 2%;
+.estructura {
+  width: 100%;
+  height: 100%;
+  padding-inline: 10%;
+  padding-block: 15dvh;
   display: flex;
   flex-direction: column;
-  gap: 3rem;
-  align-items: center;
-  backdrop-filter: blur(4px);
-  border-radius: 10px;
+  gap: 1rem;
 }
-#loginForm input {
-  width: 100%;
-  padding: 1%;
-}
-#loginForm input[type="submit"] {
-  background: #a710ac;
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-}
-.estructura {
-  position: relative;
-  height: 70dvh !important;
-}
-.exit {
-  width: 80%;
-  margin: 0 10%;
-  margin-bottom: 2%;
-  padding: 2%;
-  background: rgb(134, 1, 1);
-  color: #fff;
-  font-size: 1rem;
-  font-weight: 700;
-  border: none;
-  border-radius: 10px;
-}
-.externo {
+.container_switch {
   display: flex;
-  width: 80%;
-  background: #a710ac;
+  justify-content: center;
+  align-items: center;
+}
+.container_switch button {
+  border: none;
+  width: fit-content;
+  padding: 1rem;
+  opacity: 0.8;
+  cursor: pointer;
+  transition: all 0.3s linear;
+}
+.container_switch button.active {
+  background: var(--my-global-color);
   color: #fff;
-  text-decoration: none;
-  font-size: 1rem;
-  font-weight: 700;
-  margin: 0 10%;
-  margin-bottom: 2%;
-  padding: 2%;
-  border-radius: 10px;
+  opacity: 1;
+}
+.container_switch button:first-child {
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+
+.container_switch button:last-child {
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+.container_switch button {
+  border-radius: 0px;
+  background: #fff;
+  color: #000;
+}
+details {
+  width: 100%;
+}
+summary {
+  cursor: pointer;
 }
 </style>

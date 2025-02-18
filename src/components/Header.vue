@@ -41,8 +41,8 @@
         </div>
         <div class="enlaces">
           <router-link to="/login"
-            ><span v-if="!isLoginUser">Cuenta</span
-            ><img :src="url_logo" alt="" id="logoUser" v-else
+            ><span v-if="!isAuthenticated">Cuenta</span
+            ><img :src="tokenData.url_logo" alt="" id="logoUser" v-else
           /></router-link>
         </div>
         <!-- 
@@ -98,12 +98,15 @@
 
 <script setup>
 import { onMounted, ref } from "vue";
+import { useInfoToken } from "../composables/useInfoToken";
+
+const { tokenData, isAuthenticated } = useInfoToken();
+
 const isLoginUser = ref(false);
 const isMenuResponsive = ref(false);
 const isActiveSearchBar = ref(false);
 
 const mods = ref([]);
-const user_id = ref(0);
 const url_logo = ref("");
 const searchQuery = ref(""); // Consulta de búsqueda
 const filteredMods = ref([]); // Resultados filtrados
@@ -162,27 +165,12 @@ const fetchMods = async () => {
   }
 };
 
-const fetchDataUserId = async (id) => {
-  try {
-    const response = await fetch(
-      `https://www.dokidokispanish.club/api_ddsc/user/${id}`
-    );
-    if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
-
-    const jsonData = await response.json();
-    url_logo.value = jsonData.results[0].url_logo;
-  } catch (err) {
-    error.value = err.message || "Error desconocido al cargar el mod.";
-  }
-};
-
 // Cargar los mods al montar el componente
 onMounted(() => {
   fetchNoti();
   fetchMods();
-  if (localStorage.getItem("user")) {
-    user_id.value = localStorage.getItem("user");
-    fetchDataUserId(user_id.value);
+  if (isAuthenticated.value) {
+    url_logo.value = tokenData.value.url_logo;
     isLoginUser.value = true;
   }
 });
@@ -193,13 +181,12 @@ header {
   position: fixed;
   top: 0;
   left: 0;
-  background: var(--color_fondo_transparente);
-  width: 100vw;
-  height: 10dvh;
+  background: var(--color_fondo);
+  width: 100%;
+  height: 15dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   padding: 1% 0;
   z-index: 100 !important;
   padding: 0;
@@ -210,8 +197,7 @@ header {
 .notificaciones_header {
   width: 100%;
   background: var(--color_fondo);
-  height: 50%;
-  overflow: hidden;
+  height: 5rem !important;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -230,19 +216,18 @@ header {
 }
 .container_header {
   width: 80%;
-  height: 50%;
-  margin: auto;
+  margin-inline: auto;
   display: flex;
   justify-content: space-between;
   gap: 5%;
   align-items: center;
-  padding: 1% 0;
 }
 .container_sitio {
   width: 30%;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 0;
 }
 .container_sitio h1 {
   text-align: left;
@@ -269,6 +254,7 @@ nav .enlaces a {
   padding: 2%;
   border-radius: 5px;
   text-align: center;
+  background: none !important;
 }
 .enlaces .submenu {
   position: absolute;
@@ -336,7 +322,7 @@ nav .enlaces a {
   z-index: 80 !important;
   width: 100%;
   height: 10dvh;
-  top: 10dvh;
+  top: 0dvh;
   left: 0;
   padding: 1% 10%;
   background: #a710ac7a;
@@ -370,7 +356,7 @@ nav .enlaces a {
 }
 .container_results {
   position: fixed;
-  top: 7.7dvh;
+  top: 10dvh;
   left: 10%;
   width: 80%;
   background: #fff;
@@ -404,6 +390,7 @@ nav .enlaces a {
   text-decoration: none;
   gap: 1rem;
   color: #000;
+  background: none;
 }
 .icon_search_ico {
   position: absolute;

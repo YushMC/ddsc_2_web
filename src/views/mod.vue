@@ -101,12 +101,50 @@
         </swiper-slide>
       </Swiper>
     </div>
+
+    <div class="comentarios" v-if="isAuthenticated">
+      <h2>Comentarios</h2>
+
+      <form @submit.prevent="agregarComentario">
+        <textarea
+          v-model="nuevoComentario"
+          placeholder="Escribe un comentario"
+        ></textarea>
+        <button type="submit">Comentar</button>
+      </form>
+      <div class="paginacion">
+        <button @click="pagina--" :disabled="pagina <= 1">Anterior</button>
+        <span>Página {{ pagina }} de {{ totalPaginas }}</span>
+        <button @click="pagina++" :disabled="pagina >= totalPaginas">
+          Siguiente
+        </button>
+      </div>
+
+      <ul v-if="comentarios.length > 0">
+        <ComentarioItem
+          v-for="comentario in comentarios"
+          :key="comentario.id"
+          :comentario="comentario.comentario"
+          :logo="comentario.usuario_logo"
+          :banner="comentario.usuario_banner"
+          :user="comentario.usuario_nombre"
+          :id_comentario="comentario.id"
+          :id_mod="comentario.id_mod"
+          @respuesta="agregarRespuesta"
+        />
+      </ul>
+
+      <!-- Controles de paginación -->
+    </div>
   </div>
 </template>
 
 <script setup>
 import { onMounted, ref, computed, watch } from "vue";
 import { Swiper, SwiperSlide } from "swiper/vue";
+import { useInfoToken } from "../composables/useInfoToken";
+const { isAuthenticated } = useInfoToken();
+import Swal from "sweetalert2";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
@@ -178,6 +216,8 @@ const fetchModsId = async (id) => {
 
     const jsonData = await response.json();
     mod.value = jsonData.results[0] || {};
+    document.title = mod.value.nombre + " - Doki Doki Spanish Club";
+    obtenerComentarios(mod.value.id);
   } catch (err) {
     error.value = err.message || "Error desconocido al cargar el mod.";
   }
@@ -204,11 +244,84 @@ watch(
     window.scrollTo({ top: 0, behavior: "smooth" }); // Desplazar al inicio
   }
 );
-onMounted(() => {
-  fetchModsId(route.params.id);
-  fetchMods();
-  document.title = mod.value.name + " - Doki Doki Spanish Club";
-});
+
+//comentarios
+import ComentarioItem from "../components/cuenta/ComentarioItem.vue";
+const comentarios = ref([]);
+const nuevoComentario = ref("");
+const pagina = ref(1);
+const totalPaginas = ref(1);
+
+// Obtener comentarios con paginación
+const obtenerComentarios = async (id_mod) => {
+  try {
+    const res = await fetch(
+      `https://api.dokidokispanish.club/comments/${pagina.value}/5/${id_mod}`
+    );
+    const data = await res.json();
+    comentarios.value = data.comentarios;
+    totalPaginas.value = data.total_paginas;
+  } catch (error) {
+    console.error("Error al obtener comentarios:", error);
+  }
+};
+
+// Agregar un nuevo comentario
+const agregarComentario = async () => {
+  if (!nuevoComentario.value.trim()) return;
+
+  try {
+    Swal.fire({
+      title: "Guardando tu comentario",
+      allowOutsideClick: false, // Evita el cierre al hacer clic fuera
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+    const response = await fetch(
+      "https://api.dokidokispanish.club/create-comment",
+      {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          idMod: mod.value.id,
+          contenido: nuevoComentario.value,
+        }),
+      }
+    );
+    Swal.close();
+    const data = await response.json();
+    if (!response.ok) {
+      Swal.fire({
+        icon: "error",
+        title: "Ocurrio un error al guardar tu comentario.",
+        text: JSON.stringify(data.error),
+      });
+    }
+    Swal.fire({
+      title: "Comentario guardado correctamente!",
+      text: JSON.stringify(data.message),
+      icon: "success",
+    });
+    nuevoComentario.value = "";
+    obtenerComentarios();
+  } catch (error) {
+    console.error("Error al agregar comentario:", error);
+  }
+};
+
+// Cambiar de página
+const cambiarPagina = (delta) => {
+  pagina.value += delta;
+};
+
+// Observar cambios en la página y cargar los comentarios
+watch(pagina, obtenerComentarios);
+
+fetchModsId(route.params.id);
+fetchMods();
+onMounted(async () => {});
 </script>
 
 <style scoped>
@@ -289,7 +402,8 @@ onMounted(() => {
 
 .content_info p {
   line-height: 1.5;
-  font-weight: 300;
+  font-weight: 500;
+  font-size: 1rem !important;
 }
 .enlaces {
   width: 100%;
@@ -389,6 +503,33 @@ onMounted(() => {
   filter: brightness(1) !important;
 }
 
+.comentarios {
+  width: 80%;
+  margin-inline: auto;
+  background: #ffffff5e;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 1%;
+  border-radius: 20px;
+}
+.comentarios form,
+.comentarios ul {
+  width: 90%;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  list-style: none;
+}
+.comentarios .paginacion {
+  width: 90%;
+  margin-inline: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+}
 @media screen and (max-width: 1400px) {
   .portada {
     display: flex;
