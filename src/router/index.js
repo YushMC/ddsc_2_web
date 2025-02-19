@@ -5,6 +5,7 @@ import Traducciones from "../views/Traducciones.vue";
 import Mods from "../views/Mods.vue";
 import Login from "../views/login.vue";
 import cuentaInicio from "../views/cuenta/index.vue";
+import perfil from "../views/comunidad/perfil.vue";
 import { useInfoToken } from "../composables/useInfoToken.js";
 
 const routes = [
@@ -30,6 +31,13 @@ const routes = [
     path: "/mod/:id",
     name: "Mod",
     component: Mod,
+    props: true, // Pasar parámetros de la URL como props
+    meta: { index: 1 },
+  },
+  {
+    path: "/comunidad/perfil/:slug",
+    name: "Perfil",
+    component: perfil,
     props: true, // Pasar parámetros de la URL como props
     meta: { index: 1 },
   },

@@ -51,7 +51,7 @@ onMounted(async () => {
 }
 main {
   width: 100%;
-  padding-block: 2dvh;
+  padding-top: 2dvh;
   background-size: cover;
   background-attachment: fixed;
   background-repeat: no-repeat;

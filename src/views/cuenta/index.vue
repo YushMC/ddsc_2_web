@@ -5,6 +5,11 @@
         <div class="welcome">
           <h1>Hola {{ tokenData.nombre }}!</h1>
           <h3>Rol: {{ tokenData.rol_nombre }}</h3>
+          <router-link
+            :to="`/comunidad/perfil/${tokenData.slug}`"
+            v-if="tokenData.slug"
+            >Ver Perfil</router-link
+          >
         </div>
         <picture>
           <img :src="tokenData.url_logo" alt="" loading="lazy" />
@@ -351,11 +356,20 @@ button.exit {
 .options input {
   width: 100%;
 }
+.welcome {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
 
 @media screen and (max-width: 800px) {
   .container_cards {
     display: flex;
     flex-direction: column;
+  }
+  .aspect {
+    width: 50dvw;
+    bottom: 2rem;
   }
 }
 </style>
