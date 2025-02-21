@@ -6,6 +6,8 @@ import Mods from "../views/Mods.vue";
 import Login from "../views/login.vue";
 import cuentaInicio from "../views/cuenta/index.vue";
 import perfil from "../views/comunidad/perfil.vue";
+import subir from "../views/cuenta/subir.vue";
+
 import { useInfoToken } from "../composables/useInfoToken.js";
 
 const routes = [
@@ -52,6 +54,12 @@ const routes = [
     name: "cuenta",
     component: cuentaInicio,
     meta: { requiresAuth: true },
+  },
+  ,
+  {
+    path: "/cuenta/subir",
+    name: "Subir Mod",
+    component: subir,
   },
 ];
 
