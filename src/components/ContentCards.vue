@@ -79,7 +79,7 @@
             <h3><b>Estado:</b> {{ mod.estado }}</h3>
           </div>
           <div class="botones_info">
-            <router-link :to="{ path: `/mod/${mod.id}` }">Info</router-link>
+            <router-link :to="{ path: `/mod/${mod.slug}` }">Info</router-link>
           </div>
         </div>
       </div>
