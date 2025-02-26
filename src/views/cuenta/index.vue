@@ -45,17 +45,11 @@
           "
         >
           <h4>Subir Mods</h4>
-          <ul>
-            <li>ATENCIÓN: Serás redirigido a la página antigua!</li>
-          </ul>
-          <a
-            href="https://www.dokidokispanish.club/editores/subir"
-            target="_blank"
-            >Subir</a
-          >
+
+          <router-link to="/cuenta/subir">Subir</router-link>
         </div>
         <div class="card" v-if="tokenData.rol_nombre == 'creador'">
-          <h4>Enviar Mensaje Push Up</h4>
+          <h4>Enviar Mensaje Push</h4>
           <label for="tituloNoti">Titulo de la notificación</label>
           <input
             type="text"

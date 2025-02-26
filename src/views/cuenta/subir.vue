@@ -24,7 +24,8 @@
         </div>
         <div class="container_input">
           <label for="">Descripción: </label>
-          <input type="text" v-model="descriptionMod" />
+          <textarea type="text" v-model="descriptionMod" rows="10" cols="10">
+          </textarea>
         </div>
         <div class="container_input">
           <label for="">Tipo: </label>
@@ -34,16 +35,68 @@
           </select>
         </div>
         <div class="container_input">
-          <label for="">Duración: </label>
-          <select name="" id="" v-model="duracionMod">
-            <option value="1">Argentina</option>
+          <label for="">Estado: </label>
+          <select name="" id="" v-model="estadoMod">
+            <option
+              v-for="option in optionsEstado"
+              :key="option?.id"
+              :value="option?.id"
+            >
+              {{ option?.estado }}
+            </option>
           </select>
         </div>
         <div class="container_input">
+          <label for="">Duración: </label>
+          <select name="" id="" v-model="duracionMod">
+            <option
+              v-for="option in optionsDuracion"
+              :key="option?.id"
+              :value="option?.id"
+            >
+              {{ option?.duracion }}
+            </option>
+          </select>
+        </div>
+
+        <div class="container_input">
           <label for="">Enfoque: </label>
           <select name="" id="" v-model="enfoqueMod">
-            <option value="1">Argentina</option>
+            <option
+              value="1"
+              v-for="option in optionsEnfoque"
+              :key="option?.id"
+              :value="option?.id"
+            >
+              {{ option?.enfoque }}
+            </option>
           </select>
+        </div>
+        <div class="container_input">
+          <label for="">Generos: </label>
+          <select v-model="selectedValueGenero" @change="addOptionGenero">
+            <option value="" disabled>Seleccione un género</option>
+            <option
+              v-for="option in optionsGenero"
+              :key="option?.id"
+              :value="option?.id"
+            >
+              {{ option?.genero }}
+            </option>
+          </select>
+          <label for="" v-if="selectedOptionsGenero.length > 0"
+            >Generos seleccionados:</label
+          >
+          <div class="selected-items" v-if="selectedOptionsGenero.length > 0">
+            <span
+              v-for="option in selectedOptionsGenero"
+              :key="option.id"
+              class="tag"
+            >
+              {{ option.genero }}
+              <button @click="removeOptionGenero(option)">✖</button>
+            </span>
+          </div>
         </div>
         <div class="container_input">
           <label for=""
@@ -54,45 +107,406 @@
             <option value="1">Sí</option>
           </select>
         </div>
-        <div class="container_input">
+        <div class="container_input" v-if="estadoMod !== 3">
           <label for="">Link de descarga PC: </label>
           <input type="text" v-model="linkMod" />
         </div>
-        <div class="container_input">
+        <div class="container_input" v-if="estadoMod !== 3">
           <label for="">Link de descarga Android: </label>
           <input type="text" v-model="linkModAndroid" />
         </div>
         <div class="container_input">
+          <h6>
+            Nota: Selecciona una opción o escribe el nombre del creador (en caso
+            de no estar en la lista)
+          </h6>
           <label for="">Creador</label>
-          <input list="list-users" id="users" v-model="creadorMod" />
-          <datalist id="list-users">
-            <option value="Manzana"></option>
-            <option value="Banana"></option>
-            <option value="Cereza"></option>
-            <option value="Durazno"></option>
-            <option value="Uva"></option>
+
+          <input
+            list="options-list"
+            v-model="selectedValueCreador"
+            @change="addOptionCreador"
+            placeholder="Selecciona una opción o escribe el nombre del creador (en caso de no estar en la lista)"
+          />
+          <datalist id="options-list">
+            <option
+              v-for="option in optionsCreadores"
+              :key="option?.id"
+              :value="option?.nombre"
+            ></option>
           </datalist>
+          <label for="" v-if="selectedOptions.length > 0"
+            >Creadores seleccionados:</label
+          >
+          <div class="selected-items" v-if="selectedOptions.length > 0">
+            <span v-for="option in selectedOptions" :key="option" class="tag">
+              {{ option.nombre }}
+              <button @click="removeOption(option)">✖</button>
+            </span>
+          </div>
+        </div>
+        <div class="container_input" v-if="isTraduccion">
+          <h6>
+            Nota: Selecciona una opción o escribe el nombre del traductor (en
+            caso de no estar en la lista)
+          </h6>
+          <label for="">Traductor</label>
+          <input
+            list="options-list-traductores"
+            v-model="selectedValueTraductor"
+            @change="addOptionTraductor"
+            placeholder="Selecciona una opción o escribe el nombre del creador (en caso de no estar en la lista)"
+          />
+          <datalist id="options-list-traductores">
+            <option
+              v-for="opcion in optionsTraductores"
+              :key="opcion.id"
+              :value="opcion.nombre"
+            ></option>
+          </datalist>
+
+          <label for="" v-if="selectedOptionsTraductor.length > 0"
+            >Traductores seleccionados:</label
+          >
+          <div
+            class="selected-items"
+            v-if="selectedOptionsTraductor.length > 0"
+          >
+            <span
+              v-for="opcion in selectedOptionsTraductor"
+              :key="opcion.id"
+              class="tag"
+            >
+              {{ opcion.nombre }}
+              <button @click="removeOptionTraductor(opcion)">✖</button>
+            </span>
+          </div>
         </div>
         <div class="container_input">
-          <label for="">Traductor</label>
-          <input list="list-users-2" id="users-2" v-model="TraductorMod" />
-          <datalist id="list-users-2">
-            <option value="Manzana"></option>
-            <option value="Banana"></option>
-            <option value="Cereza"></option>
-            <option value="Durazno"></option>
-            <option value="Uva"></option>
-          </datalist>
+          <label for="">Logo</label>
+          <input type="file" ref="logo" accept="image/*" required />
         </div>
-        <h6 style="color: red">* Obligatorio</h6>
-
-        <button type="submit" @click.prevent="registerUser">Crear</button>
+        <div class="container_input">
+          <label for="">Capturas</label>
+          <input
+            type="file"
+            ref="capturas"
+            accept="image/*"
+            multiple
+            required
+          />
+        </div>
+        <button
+          type="submit"
+          style="width: 100% !important"
+          @click.prevent="registerMod"
+        >
+          Subir Información
+        </button>
       </div>
     </form>
   </div>
 </template>
 
-<script setup></script>
+<script setup>
+import { onMounted, ref, watch } from "vue";
+import Swal from "sweetalert2";
+
+const nameMod = ref("");
+const descriptionMod = ref("");
+const tipoMod = ref(1);
+const duracionMod = ref(1);
+const enfoqueMod = ref(1);
+const nsfwMod = ref(0);
+const linkMod = ref("");
+const linkModAndroid = ref("");
+
+const logo = ref(null);
+const capturas = ref([]);
+
+const isTraduccion = ref(true);
+const estadoMod = ref(1);
+
+watch(tipoMod, (newValue) => {
+  isTraduccion.value = !isTraduccion.value;
+});
+
+const optionsCreadores = ref([]); // Almacena las opciones de la API
+const selectedOptions = ref([]); // Almacena las opciones seleccionadas
+const selectedValueCreador = ref("");
+
+const optionsTraductores = ref([]); // Almacena las opciones de la API
+const selectedOptionsTraductor = ref([]); // Almacena las opciones seleccionadas
+const selectedValueTraductor = ref("");
+
+const fetchOptions = async () => {
+  try {
+    const response = await fetch("https://api.dokidokispanish.club/users"); // Cambia por tu URL
+    const data = await response.json();
+    optionsCreadores.value = data.results; // Suponiendo que la API devuelve un array de strings
+    optionsTraductores.value = data.results; // Suponiendo que la API devuelve un array de strings
+  } catch (error) {
+    console.error("Error al obtener opciones:", error);
+  }
+};
+
+const removeOption = (option) => {
+  selectedOptions.value = selectedOptions.value.filter(
+    (item) => item !== option
+  );
+};
+const addOptionCreador = () => {
+  if (!selectedValueCreador.value) return; // Evita valores vacíos
+
+  // Buscar si el nombre ingresado está en la lista de opciones
+  const selectedTraductor = optionsCreadores.value.find(
+    (opcion) => opcion.nombre === selectedValueCreador.value
+  );
+
+  // Si está en la lista, usar el objeto completo; si no, crear uno nuevo
+  const newTraductor = selectedTraductor || {
+    id: Date.now(),
+    nombre: selectedValueCreador.value,
+  };
+
+  // Evitar duplicados
+  if (
+    !selectedOptions.value.some(
+      (opcion) => opcion.nombre === newTraductor.nombre
+    )
+  ) {
+    selectedOptions.value.push(newTraductor);
+  }
+
+  selectedValueCreador.value = ""; // Limpiar el input
+};
+
+const addOptionTraductor = () => {
+  if (!selectedValueTraductor.value) return; // Evita valores vacíos
+
+  // Buscar si el nombre ingresado está en la lista de opciones
+  const selectedTraductor = optionsTraductores.value.find(
+    (opcion) => opcion.nombre === selectedValueTraductor.value
+  );
+
+  // Si está en la lista, usar el objeto completo; si no, crear uno nuevo
+  const newTraductor = selectedTraductor || {
+    id: Date.now(),
+    nombre: selectedValueTraductor.value,
+  };
+
+  // Evitar duplicados
+  if (
+    !selectedOptionsTraductor.value.some(
+      (opcion) => opcion.nombre === newTraductor.nombre
+    )
+  ) {
+    selectedOptionsTraductor.value.push(newTraductor);
+  }
+
+  selectedValueTraductor.value = ""; // Limpiar el input
+};
+
+const removeOptionTraductor = (option) => {
+  selectedOptionsTraductor.value = selectedOptionsTraductor.value.filter(
+    (item) => item !== option
+  );
+};
+const optionsDuracion = ref([]); // Almacena las opciones de la API
+const fetchOptionsDuracion = async () => {
+  try {
+    const response = await fetch(
+      "https://api.dokidokispanish.club/mods/options/duration"
+    ); // Cambia por tu URL
+    const data = await response.json();
+    optionsDuracion.value = data.results; // Suponiendo que la API devuelve un array de strings
+  } catch (error) {
+    console.error("Error al obtener opciones:", error);
+  }
+};
+
+const optionsEnfoque = ref([]); // Almacena las opciones de la API
+const fetchOptionsEnfoque = async () => {
+  try {
+    const response = await fetch(
+      "https://api.dokidokispanish.club/mods/options/focus-on"
+    ); // Cambia por tu URL
+    const data = await response.json();
+    optionsEnfoque.value = data.results; // Suponiendo que la API devuelve un array de strings
+  } catch (error) {
+    console.error("Error al obtener opciones:", error);
+  }
+};
+
+const optionsEstado = ref([]); // Almacena las opciones de la API
+const fetchOptionsEstado = async () => {
+  try {
+    const response = await fetch(
+      "https://api.dokidokispanish.club/mods/options/status"
+    ); // Cambia por tu URL
+    const data = await response.json();
+    optionsEstado.value = data.results; // Suponiendo que la API devuelve un array de strings
+  } catch (error) {
+    console.error("Error al obtener opciones:", error);
+  }
+};
+
+const optionsGenero = ref([]); // Lista de géneros obtenidos de la API
+const selectedOptionsGenero = ref([]); // Géneros seleccionados
+const selectedValueGenero = ref(""); // Valor actual del select
+
+const fetchOptionsGenero = async () => {
+  try {
+    const response = await fetch(
+      "https://api.dokidokispanish.club/mods/options/genere"
+    ); // Asegúrate de que esta URL devuelve un array de objetos con { id, genero }
+    const data = await response.json();
+    optionsGenero.value = data.results;
+  } catch (error) {
+    console.error("Error al obtener géneros:", error);
+  }
+};
+
+const addOptionGenero = () => {
+  if (!selectedValueGenero.value) return; // Evita valores vacíos
+
+  // Convertir a número si es necesario
+  const selectedId = parseInt(selectedValueGenero.value, 10);
+
+  // Buscar en la lista de opciones
+  const selectedGenero = optionsGenero.value.find(
+    (opcion) => opcion.id === selectedId
+  );
+
+  if (!selectedGenero) return; // Evitar problemas si no se encuentra
+
+  // Verificar si ya existe en la lista seleccionada
+  if (
+    !selectedOptionsGenero.value.some(
+      (opcion) => opcion.id === selectedGenero.id
+    )
+  ) {
+    selectedOptionsGenero.value.push(selectedGenero);
+  }
+
+  selectedValueGenero.value = ""; // Reiniciar selección
+};
+
+const removeOptionGenero = (option) => {
+  selectedOptionsGenero.value = selectedOptionsGenero.value.filter(
+    (item) => item.id !== option.id
+  );
+};
+
+onMounted(() => {
+  fetchOptions();
+  fetchOptionsDuracion();
+  fetchOptionsEstado();
+  fetchOptionsEnfoque();
+  fetchOptionsGenero();
+});
+
+const registerMod = async () => {
+  const formData = new FormData();
+  if (
+    nameMod.value.trim() === "" ||
+    descriptionMod.value.trim() === "" ||
+    selectedOptions.length === 0 ||
+    selectedOptionsTraductor.length === 0 ||
+    selectedOptionsGenero.length === 0
+  ) {
+    Swal.fire({
+      title: "Error",
+      text: "Por favor, rellena o selecciona todos los campos.",
+      icon: "error",
+    });
+    return false;
+  }
+
+  // Agregar los datos del formulario al FormData
+  formData.append("name", nameMod.value);
+  formData.append("descripcion", descriptionMod.value);
+  formData.append("tipo", tipoMod.value);
+  formData.append("duracion", duracionMod.value);
+  formData.append("enfoque", enfoqueMod.value);
+  formData.append("estado", estadoMod.value);
+  formData.append("nsfw", nsfwMod.value);
+  formData.append("linkPC", linkMod.value);
+  formData.append("linkAndroid", linkModAndroid.value);
+
+  // Agregar opciones seleccionadas
+  formData.append("creador", JSON.stringify(selectedOptions.value)); // Asegúrate de que sea un array
+  formData.append("traductor", JSON.stringify(selectedOptionsTraductor.value)); // Asegúrate de que sea un array
+  formData.append("generos", JSON.stringify(selectedOptionsGenero.value)); // Asegúrate de que sea un array
+
+  // Obtener y agregar el archivo del logo
+  const logoFile = logo.value.files[0];
+  if (logoFile) {
+    formData.append("logo", logoFile);
+  }
+
+  // Obtener y agregar los archivos de las capturas
+  const captureFiles = capturas.value.files;
+  for (let i = 0; i < captureFiles.length; i++) {
+    formData.append("capturas[]", captureFiles[i]);
+  }
+
+  try {
+    Swal.fire({
+      title: "Creando mod",
+      text: "Por favor, espera un momento",
+      allowOutsideClick: false, // Evita el cierre al hacer clic fuera
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+
+    const response = await fetch("https://api.dokidokispanish.club/add-mod", {
+      method: "POST",
+      credentials: "include",
+      body: formData,
+    });
+    Swal.close();
+    const data = await response.json();
+    nameMod.value = "";
+    descriptionMod.value = "";
+    tipoMod.value = 1;
+    duracionMod.value = 1;
+    enfoqueMod.value = 1;
+    estadoMod.value = 1;
+    nsfwMod.value = 0;
+    linkMod.value = "";
+    linkModAndroid.value = "";
+    selectedOptions.value = [];
+    selectedOptionsTraductor.value = [];
+    selectedOptionsGenero.value = [];
+    logoFile.value = null;
+    capturas.value = [];
+    if (data.message) {
+      Swal.fire({
+        title: "Mod Guardado!",
+        text: JSON.stringify(data.message),
+        icon: "success",
+        confirmButtonText: "Aceptar",
+      });
+    } else {
+      Swal.fire({
+        title: "Error al guardar el mod.",
+        text: JSON.stringify(data.error),
+        icon: "error",
+        confirmButtonText: "Aceptar",
+      });
+    }
+  } catch (err) {
+    Swal.fire({
+      title: "Error",
+      text: "Ha ocurrido un error al crear el mod: " + err,
+      icon: "error",
+      confirmButtonText: "Aceptar",
+    });
+  }
+};
+</script>
 
 <style scoped>
 .formulario {
@@ -104,9 +518,10 @@
 .formulario form {
   padding: 2rem;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.5);
   display: flex;
   flex-direction: column;
+  backdrop-filter: blur(20px);
   gap: 1rem;
 }
 
@@ -114,6 +529,13 @@
   display: grid;
   grid-template-columns: 1fr 2fr;
   gap: 1rem;
+}
+@media screen and (max-width: 768px) {
+  .formulario form .container_portada {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
 }
 
 .container_portada img {
@@ -131,5 +553,25 @@
 input {
   font-size: 1rem;
   padding: 1rem;
+}
+
+.selected-items {
+  width: 100%;
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 1rem;
+  border-radius: 10px;
+  background: #fff;
+  gap: 1rem;
+}
+.selected-items span {
+  width: fit-content !important;
+  position: relative !important;
+  border: 2px solid var(--color_fondo);
+  padding: 0.5rem;
+  border-radius: 10px;
+  bottom: 0 !important;
 }
 </style>

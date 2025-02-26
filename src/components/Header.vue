@@ -83,7 +83,7 @@
               :key="mod.id"
               v-if="searchQuery.length > 0"
             >
-              <router-link :to="`/mod/${mod.id}`"
+              <router-link :to="`/mod/${mod.slug}`"
                 ><img
                   src="../assets/gui/icon_search_balck.svg"
                   alt=""
@@ -163,7 +163,7 @@ const fetchNoti = async () => {
 const fetchMods = async () => {
   try {
     const response = await fetch(
-      "https://www.dokidokispanish.club/api_ddsc/mods"
+      "https://api.dokidokispanish.club/search-mods/"
     );
     if (!response.ok) {
       throw new Error(`Error HTTP: ${response.status}`);

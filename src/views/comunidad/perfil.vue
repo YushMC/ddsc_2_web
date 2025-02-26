@@ -149,7 +149,7 @@ watch(
 .logo {
   width: 15rem;
   margin-inline: auto;
-  margin-top: -5rem;
+  margin-top: -8rem;
   overflow: hidden;
   position: relative;
   z-index: 60;

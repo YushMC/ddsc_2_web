@@ -19,9 +19,7 @@
           >
             Anterior
           </button>
-
           <span>Página {{ currentPage }} de {{ totalPages }}</span>
-
           <button
             :disabled="currentPage === totalPages"
             @click="changePage(currentPage + 1)"
@@ -50,91 +48,35 @@
           </select>
         </div>
       </div>
-      <div
-        class="filtros_busqueda"
-        v-if="seleccion_ruta >= 5 && isAuthenticated"
-      >
-        <h4>Filtros:</h4>
-        <select v-model="filters.genero">
-          <option value="">Todos los géneros</option>
-          <option
-            v-for="(option, index) in sortedGeneros"
-            :key="index"
-            :value="option"
-          >
-            {{ option }}
-          </option>
-        </select>
-        <select v-model="filters.estado">
-          <option value="">Todos los estados</option>
-          <option
-            v-for="(option, index) in sortedEstados"
-            :key="index"
-            :value="option"
-          >
-            {{ option }}
-          </option>
-        </select>
-        <select v-model="filters.enfoque">
-          <option value="">Todos los enfoques</option>
-          <option
-            v-for="(option, index) in sortedEnfoques"
-            :key="index"
-            :value="option"
-          >
-            {{ option }}
-          </option>
-        </select>
-        <select v-model="filters.duracion">
-          <option value="">Todas las duraciones</option>
-          <option
-            v-for="(option, index) in sortedDuracion"
-            :key="index"
-            :value="option"
-          >
-            {{ option }}
-          </option>
-        </select>
-        <button @click="resetFilters">Reiniciar Filtros</button>
-      </div>
     </div>
+
     <transition name="blur" mode="out-in">
       <div v-if="!loading" :class="isActive ? 'space_cards_2' : 'space_cards'">
-        <div
-          class="card"
-          v-for="mod in paginatedItems"
-          :key="mod.id"
-          :class="mod.seleccion ? 'isSeleccion' : ''"
-        >
-          <h3 class="nombre_mod" :class="{ 'text-gradient': mod.seleccion }">
-            {{ mod.nombre }}
-          </h3>
+        <div class="card" v-for="mod in paginatedItems" :key="mod.id">
+          <h3 class="nombre_mod">{{ mod.nombre }}</h3>
           <div class="banner_img">
             <Swiper
-              v-if="getValidImages(mod).length"
+              v-if="mod.capturas.length"
               :modules="[Pagination]"
               pagination
               class="mySwiper"
               :space-between="10"
             >
-              <swiper-slide
-                v-for="(url, index) in getValidImages(mod)"
-                :key="index"
-              >
+              <swiper-slide v-for="(url, index) in mod.capturas" :key="index">
                 <img :src="url" alt="Imagen del mod" loading="lazy" />
               </swiper-slide>
             </Swiper>
             <div class="container_img_logo">
-              <img :src="mod.url_logo" alt="" loading="lazy" />
+              <img :src="mod.logo" alt="" loading="lazy" />
             </div>
           </div>
           <div class="descripcion">
-            <h3 class="text-gradient" v-if="mod.seleccion">
-              Selección de la Comunidad
-            </h3>
-            <h3><b>Género:</b> <br />{{ mod.genero }}</h3>
-            <h3><b>Duración:</b> <br />{{ mod.duracion }}</h3>
-            <h3><b>Estado:</b> <br />{{ mod.estado }}</h3>
+            <h3><b>Géneros:</b></h3>
+            <span v-for="(genero, index) in mod.generos" :key="index"
+              >{{ genero }}
+            </span>
+            <h3><b>Duración:</b> {{ mod.duracion }}</h3>
+            <h3><b>Estado:</b> {{ mod.estado }}</h3>
           </div>
           <div class="botones_info">
             <router-link :to="{ path: `/mod/${mod.id}` }">Info</router-link>
@@ -149,18 +91,14 @@
 import { ref, onMounted, computed } from "vue";
 import { Swiper, SwiperSlide } from "swiper/vue";
 import "swiper/css";
-import "swiper/css/navigation";
 import "swiper/css/pagination";
-import { Navigation, Pagination } from "swiper/modules";
+import { Pagination } from "swiper/modules";
 
 import { useInfoToken } from "../composables/useInfoToken";
 const { isAuthenticated } = useInfoToken();
-// Props y estado
+
 const props = defineProps({
-  solicitud: {
-    type: Number,
-    required: true,
-  },
+  solicitud: { type: Number, required: true },
 });
 
 const mods = ref([]);
@@ -168,27 +106,23 @@ const loading = ref(false);
 const error = ref("");
 const ruta = ref("");
 const isActive = ref(false);
-const seleccion_ruta = ref(0);
+const seleccion_ruta = ref(props.solicitud);
 const seccion_titulo = ref("");
-seleccion_ruta.value = props.solicitud;
-const toggleViews = () => {
-  isActive.value = !isActive.value;
-};
+
 // Paginación
-const totalData = computed(() => filteredItems.value.length);
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
 const inputPage = ref("");
 
-const totalPages = computed(() => {
-  const totalItems = filteredItems.value.length || 0;
-  return Math.ceil(totalItems / itemsPerPage.value) || 1;
-});
+const totalData = computed(() => mods.value.length);
+const totalPages = computed(
+  () => Math.ceil(mods.value.length / itemsPerPage.value) || 1
+);
 
 const paginatedItems = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage.value;
   const end = start + itemsPerPage.value;
-  return filteredItems.value.slice(start, end);
+  return mods.value.slice(start, end);
 });
 
 // Cambiar página
@@ -198,7 +132,6 @@ const changePage = (page) => {
   }
 };
 
-// Ir a la página especificada
 const goToPage = () => {
   const page = parseInt(inputPage.value, 10);
   if (!isNaN(page) && page >= 1 && page <= totalPages.value) {
@@ -207,110 +140,41 @@ const goToPage = () => {
   inputPage.value = "";
 };
 
-// Filtros
-const filters = ref({
-  genero: "",
-  estado: "",
-  enfoque: "",
-  duracion: "",
-});
-
-const uniqueGeneros = computed(() => [
-  ...new Set(mods.value.map((mod) => mod.genero)),
-]);
-const uniqueEstados = computed(() => [
-  ...new Set(mods.value.map((mod) => mod.estado)),
-]);
-const uniqueEnfoques = computed(() => [
-  ...new Set(mods.value.map((mod) => mod.enfoque)),
-]);
-const uniqueDuracion = computed(() => [
-  ...new Set(mods.value.map((mod) => mod.duracion)),
-]);
-// Ordenar alfabéticamente los géneros
-const sortedGeneros = computed(() => {
-  return uniqueGeneros.value.sort((a, b) => a.localeCompare(b));
-});
-
-// Ordenar alfabéticamente los géneros
-const sortedEstados = computed(() => {
-  return uniqueEstados.value.sort((a, b) => a.localeCompare(b));
-});
-
-// Ordenar alfabéticamente los géneros
-const sortedEnfoques = computed(() => {
-  return uniqueEnfoques.value.sort((a, b) => a.localeCompare(b));
-});
-
-// Ordenar alfabéticamente los géneros
-const sortedDuracion = computed(() => {
-  return uniqueDuracion.value.sort((a, b) => a.localeCompare(b));
-});
-// Filtrado de los mods según los filtros seleccionados
-const filteredItems = computed(() => {
-  return mods.value.filter((mod) => {
-    return (
-      (filters.value.genero === "" || mod.genero === filters.value.genero) &&
-      (filters.value.estado === "" || mod.estado === filters.value.estado) &&
-      (filters.value.enfoque === "" || mod.enfoque === filters.value.enfoque) &&
-      (filters.value.duracion === "" || mod.duracion === filters.value.duracion)
-    );
-  });
-});
-
-// Función para reiniciar los filtros
-const resetFilters = () => {
-  filters.value = {
-    genero: "",
-    estado: "",
-    enfoque: "",
-    duracion: "",
-  };
-  currentPage.value = 1; // Reiniciar la página a la 1 al reiniciar los filtros
+const toggleViews = () => {
+  isActive.value = !isActive.value;
 };
 
-// Obtener imágenes válidas de cada mod
-const getValidImages = (mod) => {
-  return [mod.url_img, mod.url_img2, mod.url_img3, mod.url_img4].filter(
-    (url) => url && url.trim() !== ""
-  );
-};
-
-// Función para obtener los mods de la API
+// Obtener los mods de la API
 const fetchMods = async () => {
   loading.value = true;
   error.value = "";
 
-  // Cambiar la URL según la ruta seleccionada
   switch (seleccion_ruta.value) {
     case 1:
       seccion_titulo.value = "Traducciones Recientes";
       ruta.value =
-        "https://www.dokidokispanish.club/api_ddsc/mods/translated-mods-recent";
+        "https://api.dokidokispanish.club/mods/translated-mods-recents";
       break;
     case 2:
       seccion_titulo.value = "Mods Recientes";
       ruta.value =
-        "https://www.dokidokispanish.club/api_ddsc/mods/get-mods-recent";
+        "https://api.dokidokispanish.club/mods/community-mods-recents";
       break;
     case 3:
       seccion_titulo.value = "Mods Más Visitados";
-      ruta.value =
-        "https://www.dokidokispanish.club/api_ddsc/mods/most-downloaded-mods";
+      ruta.value = "https://api.dokidokispanish.club/mods/most-watched-mods";
       break;
     case 4:
       seccion_titulo.value = "Selección de la Comunidad";
-      ruta.value = "https://www.dokidokispanish.club/api_ddsc/mods/selection";
+      ruta.value = "https://api.dokidokispanish.club/mods/selection";
       break;
     case 5:
       seccion_titulo.value = "Traducciones";
-      ruta.value =
-        "https://www.dokidokispanish.club/api_ddsc/mods/translated-mods";
+      ruta.value = "https://api.dokidokispanish.club/mods/translated-mods";
       break;
     case 6:
       seccion_titulo.value = "Mods de la comunidad";
-      ruta.value =
-        "https://www.dokidokispanish.club/api_ddsc/mods/community-mods";
+      ruta.value = "https://api.dokidokispanish.club/mods/community-mods";
       break;
   }
 
@@ -328,7 +192,6 @@ const fetchMods = async () => {
   }
 };
 
-// Cargar los mods al montar el componente
 onMounted(() => {
   fetchMods();
 });
