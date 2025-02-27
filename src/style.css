@@ -67,6 +67,13 @@ select {
 }
 button {
   cursor: pointer;
+  background: var(--color_fondo);
+  color: #fff;
+}
+a {
+  background: var(--color_fondo);
+  color: #fff;
+  cursor: pointer;
 }
 main {
   min-height: 80dvh;

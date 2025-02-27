@@ -62,6 +62,9 @@
               class="mySwiper"
               :space-between="10"
             >
+              <swiper-slide v-if="mod.portada !== ''">
+                <img :src="mod.portada" alt="" />
+              </swiper-slide>
               <swiper-slide v-for="(url, index) in mod.capturas" :key="index">
                 <img :src="url" alt="Imagen del mod" loading="lazy" />
               </swiper-slide>

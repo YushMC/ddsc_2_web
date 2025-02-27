@@ -24,6 +24,11 @@
         </div>
         <div class="container_input">
           <label for="">Descripción: </label>
+          <h6
+            :style="{ color: descriptionMod.length > 1000 ? 'red' : 'black' }"
+          >
+            Carateres usados: {{ descriptionMod.length }}/ 1000
+          </h6>
           <textarea type="text" v-model="descriptionMod" rows="10" cols="10">
           </textarea>
         </div>
@@ -187,6 +192,10 @@
           <input type="file" ref="logo" accept="image/*" required />
         </div>
         <div class="container_input">
+          <label for="">Portada</label>
+          <input type="file" ref="portada" accept="image/*" required />
+        </div>
+        <div class="container_input">
           <label for="">Capturas</label>
           <input
             type="file"
@@ -209,6 +218,7 @@
 </template>
 
 <script setup>
+import { useInfoToken } from "../../composables/useInfoToken";
 import { onMounted, ref, watch } from "vue";
 import Swal from "sweetalert2";
 
@@ -223,6 +233,7 @@ const linkModAndroid = ref("");
 
 const logo = ref(null);
 const capturas = ref([]);
+const portada = ref(null);
 
 const isTraduccion = ref(true);
 const estadoMod = ref(1);
@@ -445,6 +456,11 @@ const registerMod = async () => {
     formData.append("logo", logoFile);
   }
 
+  const portadaFile = portada.value.files[0];
+  if (portadaFile) {
+    formData.append("portada", portadaFile);
+  }
+
   // Obtener y agregar los archivos de las capturas
   const captureFiles = capturas.value.files;
   for (let i = 0; i < captureFiles.length; i++) {
@@ -468,21 +484,25 @@ const registerMod = async () => {
     });
     Swal.close();
     const data = await response.json();
-    nameMod.value = "";
-    descriptionMod.value = "";
-    tipoMod.value = 1;
-    duracionMod.value = 1;
-    enfoqueMod.value = 1;
-    estadoMod.value = 1;
-    nsfwMod.value = 0;
-    linkMod.value = "";
-    linkModAndroid.value = "";
-    selectedOptions.value = [];
-    selectedOptionsTraductor.value = [];
-    selectedOptionsGenero.value = [];
-    logoFile.value = null;
-    capturas.value = [];
     if (data.message) {
+      nameMod.value = "";
+      descriptionMod.value = "";
+      tipoMod.value = 1;
+      duracionMod.value = 1;
+      enfoqueMod.value = 1;
+      estadoMod.value = 1;
+      nsfwMod.value = 0;
+      linkMod.value = "";
+      linkModAndroid.value = "";
+      selectedOptions.value = [];
+      selectedOptionsTraductor.value = [];
+      selectedOptionsGenero.value = [];
+      if (capturas.value) {
+        capturas.value.value = "";
+      }
+      if (logoFile.value) {
+        logoFile.value = "";
+      }
       Swal.fire({
         title: "Mod Guardado!",
         text: JSON.stringify(data.message),

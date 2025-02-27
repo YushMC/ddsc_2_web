@@ -11,6 +11,9 @@
           class="mySwiper2"
           :space-between="10"
         >
+          <swiper-slide v-if="mod.portada !== ''">
+            <img :src="mod.portada" alt="" />
+          </swiper-slide>
           <!-- Generar dinámicamente los slides con v-for -->
           <swiper-slide v-for="(url, index) in mod.capturas" :key="index">
             <img :src="url" alt="Imagen del mod" loading="lazy" />
@@ -25,6 +28,9 @@
           :watchSlidesProgress="true"
           class="mySwiper"
         >
+          <swiper-slide v-if="mod.portada !== ''">
+            <img :src="mod.portada" alt="" loading="lazy" class="thumb_img" />
+          </swiper-slide>
           <swiper-slide v-for="(url, index) in mod.capturas" :key="index">
             <img
               :src="url"
