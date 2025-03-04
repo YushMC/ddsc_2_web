@@ -51,21 +51,33 @@
     </div>
 
     <transition name="blur" mode="out-in">
-      <div v-if="!loading" :class="isActive ? 'space_cards_2' : 'space_cards'">
+      <div v-if="loading" :class="isActive ? 'space_cards_2' : 'space_cards'">
         <div class="card" v-for="mod in paginatedItems" :key="mod.id">
           <h3 class="nombre_mod">{{ mod.nombre }}</h3>
           <div class="banner_img">
             <Swiper
-              v-if="mod.capturas.length"
-              :modules="[Pagination]"
+              v-if="mod.capturas.length !== 0 || mod?.portada.trim() !== ''"
+              :modules="[Pagination, Navigation]"
               pagination
               class="mySwiper"
               :space-between="10"
+              :navigation="true"
             >
-              <swiper-slide v-if="mod.portada !== ''">
-                <img :src="mod.portada" alt="" />
+              <swiper-slide v-if="mod?.portada.trim() !== ''">
+                <img :src="mod.portada" alt="" loading="lazy" />
               </swiper-slide>
-              <swiper-slide v-for="(url, index) in mod.capturas" :key="index">
+              <swiper-slide v-else>
+                <img
+                  src="https://api.dokidokispanish.club/gui/Imagen-no-disponible.jpg"
+                  alt=""
+                  loading="lazy"
+                />
+              </swiper-slide>
+              <swiper-slide
+                v-for="(url, index) in mod.capturas"
+                :key="index"
+                v-if="mod.capturas.length !== 0"
+              >
                 <img :src="url" alt="Imagen del mod" loading="lazy" />
               </swiper-slide>
             </Swiper>
@@ -86,6 +98,9 @@
           </div>
         </div>
       </div>
+      <div v-else>
+        <Loader></Loader>
+      </div>
     </transition>
   </div>
 </template>
@@ -95,7 +110,9 @@ import { ref, onMounted, computed } from "vue";
 import { Swiper, SwiperSlide } from "swiper/vue";
 import "swiper/css";
 import "swiper/css/pagination";
-import { Pagination } from "swiper/modules";
+import { Navigation, Pagination } from "swiper/modules";
+
+import Loader from "./Loader.vue";
 
 import { useInfoToken } from "../composables/useInfoToken";
 const { isAuthenticated } = useInfoToken();
@@ -104,6 +121,10 @@ const props = defineProps({
   solicitud: { type: Number, required: true },
 });
 
+const isLoadedImage = ref(false);
+const handleLoad = () => {
+  isLoadedImage.value = true;
+};
 const mods = ref([]);
 const loading = ref(false);
 const error = ref("");
@@ -149,7 +170,6 @@ const toggleViews = () => {
 
 // Obtener los mods de la API
 const fetchMods = async () => {
-  loading.value = true;
   error.value = "";
 
   switch (seleccion_ruta.value) {
@@ -185,18 +205,26 @@ const fetchMods = async () => {
     const response = await fetch(ruta.value);
     if (!response.ok) {
       throw new Error(`Error HTTP: ${response.status}`);
+      return false;
     }
     const jsonData = await response.json();
     mods.value = jsonData.results || [];
+    return true;
   } catch (err) {
     error.value = err.message || "Error desconocido";
-  } finally {
-    loading.value = false;
+    return false;
   }
 };
 
-onMounted(() => {
-  fetchMods();
+onMounted(async () => {
+  const response = await fetchMods();
+  if (response) {
+    loading.value = true;
+    console.log(loading.value);
+  } else {
+    loading.value = false;
+    console.log(loading.value);
+  }
 });
 </script>
 
@@ -262,6 +290,9 @@ onMounted(() => {
   gap: 1rem;
   padding: 0;
   align-items: center;
+}
+.space_cards_2 .card .isSeleccion {
+  display: none;
 }
 
 .card {

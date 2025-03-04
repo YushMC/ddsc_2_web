@@ -1,6 +1,6 @@
 <template>
   <div class="estructura">
-    <div class="portada">
+    <div class="portada" v-if="loading">
       <div class="content_swiper">
         <Swiper
           :modules="[Navigation, Pagination, Autoplay, FreeMode, Thumbs]"
@@ -20,7 +20,6 @@
           </swiper-slide>
         </Swiper>
         <Swiper
-          v-if="mod.capturas.length > 1"
           @swiper="setThumbsSwiper"
           :spaceBetween="10"
           :slidesPerView="4"
@@ -100,7 +99,9 @@
         </div>
       </div>
     </div>
-
+    <div v-else>
+      <Loader></Loader>
+    </div>
     <div class="relacionados" v-if="filteredItems.length > 1">
       <h2>Mods Relacionados:</h2>
       <Swiper
@@ -183,6 +184,7 @@ import {
   Thumbs,
 } from "swiper/modules";
 import { useRoute, useRouter } from "vue-router";
+import Loader from "../components/Loader.vue";
 
 const thumbsSwiper = ref(null);
 
@@ -194,6 +196,8 @@ const route = useRoute();
 const mod = ref({});
 const mods = ref([]);
 const error = ref("");
+
+const loading = ref(false);
 
 const props = defineProps({
   id: [String, Number],
@@ -240,8 +244,10 @@ const fetchModsId = async (id) => {
     console.log(mod.value);
     document.title = mod.value.nombre + " - Doki Doki Spanish Club";
     obtenerComentarios(mod.value.id);
+    return true;
   } catch (err) {
     error.value = err.message || "Error desconocido al cargar el mod.";
+    return false;
   }
 };
 
@@ -341,9 +347,16 @@ const cambiarPagina = (delta) => {
 // Observar cambios en la página y cargar los comentarios
 watch(pagina, obtenerComentarios);
 
-fetchModsId(route.params.id);
 fetchMods();
-onMounted(async () => {});
+onMounted(async () => {
+  const reponse = await fetchModsId(route.params.id);
+
+  if (reponse) {
+    loading.value = true;
+  } else {
+    loading.value = false;
+  }
+});
 </script>
 
 <style scoped>
@@ -537,7 +550,9 @@ onMounted(async () => {});
   gap: 2rem;
   padding: 1%;
   border-radius: 20px;
+  backdrop-filter: blur(10px);
   content-visibility: auto;
+  margin-bottom: 2rem;
 }
 .comentarios form,
 .comentarios ul {

@@ -103,6 +103,10 @@
             </span>
           </div>
         </div>
+        <div class="container_input" v-if="estadoMod !== 3">
+          <label for="">Fecha de lanzamiento: </label>
+          <input type="date" v-model="fechaMod" />
+        </div>
         <div class="container_input">
           <label for=""
             >Contiene escenas +18 o no aptas para todo el público:
@@ -230,6 +234,7 @@ const enfoqueMod = ref(1);
 const nsfwMod = ref(0);
 const linkMod = ref("");
 const linkModAndroid = ref("");
+const fechaMod = ref("");
 
 const logo = ref(null);
 const capturas = ref([]);
@@ -444,6 +449,9 @@ const registerMod = async () => {
   formData.append("nsfw", nsfwMod.value);
   formData.append("linkPC", linkMod.value);
   formData.append("linkAndroid", linkModAndroid.value);
+  if (fechaMod.value.trim() !== "") {
+    formData.append("fecha", fechaMod.value);
+  }
 
   // Agregar opciones seleccionadas
   formData.append("creador", JSON.stringify(selectedOptions.value)); // Asegúrate de que sea un array
@@ -498,10 +506,10 @@ const registerMod = async () => {
       selectedOptionsTraductor.value = [];
       selectedOptionsGenero.value = [];
       if (capturas.value) {
-        capturas.value.value = "";
+        capturas.value.value = null;
       }
       if (logoFile.value) {
-        logoFile.value = "";
+        logoFile.value = null;
       }
       Swal.fire({
         title: "Mod Guardado!",
