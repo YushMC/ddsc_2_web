@@ -77,7 +77,10 @@
             </option>
           </select>
         </div>
-        <div class="container_input">
+        <div
+          class="container_input"
+          :class="{ options: selectedOptionsGenero.length > 0 }"
+        >
           <label for="">Generos: </label>
           <select v-model="selectedValueGenero" @change="addOptionGenero">
             <option value="" disabled>Seleccione un género</option>
@@ -124,7 +127,10 @@
           <label for="">Link de descarga Android: </label>
           <input type="text" v-model="linkModAndroid" />
         </div>
-        <div class="container_input">
+        <div
+          class="container_input"
+          :class="{ options: selectedValueCreador.length > 0 }"
+        >
           <h6>
             Nota: Selecciona una opción o escribe el nombre del creador (en caso
             de no estar en la lista)
@@ -154,7 +160,11 @@
             </span>
           </div>
         </div>
-        <div class="container_input" v-if="isTraduccion">
+        <div
+          class="container_input"
+          v-if="isTraduccion"
+          :class="{ options: selectedValueTraductor.length > 0 }"
+        >
           <h6>
             Nota: Selecciona una opción o escribe el nombre del traductor (en
             caso de no estar en la lista)
@@ -191,23 +201,62 @@
             </span>
           </div>
         </div>
-        <div class="container_input">
+        <div
+          class="container_input"
+          :class="{ options: selectedFile !== null }"
+        >
           <label for="">Logo</label>
-          <input type="file" ref="logo" accept="image/*" required />
+          <input
+            type="file"
+            ref="logo"
+            @change="handleFileChange"
+            accept="image/*"
+            required
+          />
+          <div v-if="selectedFile" class="preview">
+            <img :src="selectedFile" alt="Vista previa de la imagen" />
+            <button @click.prevent="clearImage">Eliminar</button>
+          </div>
         </div>
-        <div class="container_input">
+        <div
+          class="container_input"
+          :class="{ options: selectedFilePortada !== null }"
+        >
           <label for="">Portada</label>
-          <input type="file" ref="portada" accept="image/*" required />
+          <input
+            type="file"
+            ref="portada"
+            accept="image/*"
+            required
+            @change="handleFileChangePortada"
+          />
+          <div v-if="selectedFilePortada" class="preview">
+            <img :src="selectedFilePortada" alt="Vista previa de la imagen" />
+            <button @click.prevent="clearImagePortada">Eliminar</button>
+          </div>
         </div>
         <div class="container_input">
           <label for="">Capturas</label>
           <input
             type="file"
             ref="capturas"
+            @change="handleFileChangeCapturas"
             accept="image/*"
             multiple
             required
           />
+          <div class="preview-container" v-if="imagePreviews.length">
+            <div
+              v-for="(image, index) in imagePreviews"
+              :key="index"
+              class="preview"
+            >
+              <img :src="image.url" alt="Vista previa" class="preview-img" />
+              <button @click.prevent="removeImageCapturas(index)">
+                Eliminar
+              </button>
+            </div>
+          </div>
         </div>
         <button
           type="submit"
@@ -237,8 +286,73 @@ const linkModAndroid = ref("");
 const fechaMod = ref("");
 
 const logo = ref(null);
+const selectedFile = ref(null);
+
+const handleFileChange = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    selectedFile.value = URL.createObjectURL(file);
+  }
+};
+
+const clearImage = () => {
+  if (logo.value) {
+    logo.value.value = ""; // 🔥 Limpia el input file
+  }
+  selectedFile.value = null;
+};
+
 const capturas = ref([]);
+
+const imagePreviews = ref([]); // Lista de imágenes seleccionadas
+
+const handleFileChangeCapturas = (event) => {
+  const files = Array.from(event.target.files);
+  updateImagesCapturas(files);
+};
+
+// Función para actualizar la lista de imágenes
+const updateImagesCapturas = (files) => {
+  files.forEach((file) => {
+    imagePreviews.value.push({
+      file,
+      url: URL.createObjectURL(file),
+    });
+  });
+
+  // Sincronizar archivos en el input
+  syncInputFilesCapturas();
+};
+
+// Eliminar una imagen de la lista
+const removeImageCapturas = (index) => {
+  imagePreviews.value.splice(index, 1);
+  syncInputFiles(); // Sincronizar después de eliminar
+};
+
+// Función para sincronizar archivos con el input
+const syncInputFiles = () => {
+  const dataTransfer = new DataTransfer();
+  imagePreviews.value.forEach((img) => dataTransfer.items.add(img.file));
+  capturas.value.files = dataTransfer.files; // Actualiza los archivos del input
+};
+
 const portada = ref(null);
+const selectedFilePortada = ref(null);
+
+const handleFileChangePortada = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    selectedFilePortada.value = URL.createObjectURL(file);
+  }
+};
+
+const clearImagePortada = () => {
+  if (portada.value) {
+    portada.value.value = ""; // 🔥 Limpia el input file
+  }
+  selectedFilePortada.value = null;
+};
 
 const isTraduccion = ref(true);
 const estadoMod = ref(1);
@@ -505,12 +619,12 @@ const registerMod = async () => {
       selectedOptions.value = [];
       selectedOptionsTraductor.value = [];
       selectedOptionsGenero.value = [];
-      if (capturas.value) {
-        capturas.value.value = null;
-      }
-      if (logoFile.value) {
-        logoFile.value = null;
-      }
+
+      portada.value.value = "";
+
+      logo.value.value = "";
+
+      capturas.value.files = "";
       Swal.fire({
         title: "Mod Guardado!",
         text: JSON.stringify(data.message),
@@ -601,5 +715,32 @@ input {
   padding: 0.5rem;
   border-radius: 10px;
   bottom: 0 !important;
+}
+.preview-container {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-items: center;
+}
+.preview {
+  width: 48%;
+  margin-inline: auto;
+  display: flex;
+  gap: 2rem;
+  padding: 1rem;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  position: relative;
+  border-radius: 10px;
+}
+.preview img {
+  border-radius: 10px;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+  top: 0 !important;
+  right: 0;
 }
 </style>

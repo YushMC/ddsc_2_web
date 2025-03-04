@@ -175,6 +175,8 @@ button {
   flex-direction: column;
   gap: 0.5rem;
   position: relative;
+  transition: all 0.3s linear;
+  border: 2px solid transparent;
 }
 
 .container_input label {
@@ -218,7 +220,13 @@ button {
   top: 35% !important;
   cursor: pointer;
 }
-
+.container_input.options {
+  background: #ffffff70;
+  border-radius: 10px;
+  transition: all 0.3s linear;
+  padding: 1rem;
+  border: 2px solid var(--color_fondo);
+}
 @keyframes gradient-animation {
   0% {
     background-position: 0% 50%;
