@@ -11,9 +11,7 @@
       <router-link :to="{ path: `/mod/${item.id_mod}` }">Ver Más</router-link>
     </div>
     -->
-    <div class="notificaciones_header" style="background: orange">
-      <h1>Sitio en construcción y experimental</h1>
-    </div>
+
     <div class="container_header">
       <router-link class="container_sitio" to="/" style="text-decoration: none">
         <img
@@ -194,7 +192,7 @@ header {
   left: 0;
   background: var(--color_fondo);
   width: 100%;
-  height: 15dvh;
+  height: 50px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -204,26 +202,6 @@ header {
   margin: 0;
   backdrop-filter: blur(10px);
   box-shadow: 0px 0px 10px 5px rgba(0, 0, 0, 0.589);
-}
-.notificaciones_header {
-  width: 100%;
-  background: var(--color_fondo);
-  height: 5rem !important;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.notificaciones_header h1 {
-  font-size: 1rem;
-  color: #fff;
-}
-.notificaciones_header a {
-  margin: 0.3% 2%;
-  border: #fff solid 2px;
-  padding: 0.3%;
-  color: #fff;
-  text-decoration: none;
-  border-radius: 10px;
 }
 .container_header {
   width: 80%;
@@ -444,7 +422,7 @@ nav .enlaces a {
     left: 0;
     width: 50dvw;
     height: 100dvh;
-    background: #a710ac9a;
+    background: var(--color_fondo);
     display: flex;
     flex-direction: column;
     z-index: 100;
@@ -473,7 +451,7 @@ nav .enlaces a {
     padding-left: 1.6rem !important;
   }
   #cerrar_bar {
-    background: #a710ac91;
+    background: var(--color_fondo_transparente);
     backdrop-filter: blur(30px) !important;
   }
 }

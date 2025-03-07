@@ -298,6 +298,7 @@ onMounted(() => {
   align-items: center;
 }
 .container_switch button {
+  background: var(--color_fondo);
   border: none;
   width: fit-content;
   padding: 1rem;
@@ -306,7 +307,7 @@ onMounted(() => {
   transition: all 0.3s linear;
 }
 .container_switch button.active {
-  background: var(--my-global-color);
+  background: var(--color_fondo);
   color: #fff;
   opacity: 1;
 }

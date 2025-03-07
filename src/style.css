@@ -251,7 +251,12 @@ button {
   }
 }
 .estructura {
-  padding-top: 15dvh;
+  padding-top: 60px;
 }
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 800px) {
+  .content_info {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+  }
 }

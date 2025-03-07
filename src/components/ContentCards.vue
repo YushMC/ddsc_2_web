@@ -1,9 +1,9 @@
 <template>
   <div class="container_cards">
-    <h2>{{ seccion_titulo }} ({{ totalData }})</h2>
-    <div class="container_options">
-      <div class="visualizar">
-        <button @click="toggleViews" id="toggleView" v-if="isAuthenticated">
+    <h2>{{ seccion_titulo }} ({{ modsFiltrados.length }})</h2>
+    <div class="visualizar">
+      <div class="container_options">
+        <button @click="toggleViews" id="toggleView">
           <img
             v-if="!isActive"
             src="../assets/gui/list_icon.svg"
@@ -12,47 +12,113 @@
           />
           <img src="../assets/gui/grid_icon.svg" alt="" v-else loading="lazy" />
         </button>
-        <div class="pagination">
-          <button
-            :disabled="currentPage === 1"
-            @click="changePage(currentPage - 1)"
-          >
-            Anterior
-          </button>
-          <span>Página {{ currentPage }} de {{ totalPages }}</span>
-          <button
-            :disabled="currentPage === totalPages"
-            @click="changePage(currentPage + 1)"
-          >
-            Siguiente
-          </button>
-          <input
-            type="number"
-            v-model="inputPage"
-            @keyup.enter="goToPage"
-            :min="1"
-            :max="totalPages"
-            placeholder="Ir a página"
-            v-if="isAuthenticated"
-          />
-          <select
-            v-model="itemsPerPage"
-            @change="resetToFirstPage"
-            v-if="isAuthenticated"
-          >
-            <option :value="5">5 por página</option>
-            <option :value="10">10 por página</option>
-            <option :value="15">15 por página</option>
-            <option :value="20">20 por página</option>
-            <option :value="50">50 por página</option>
-          </select>
-        </div>
+      </div>
+      <div class="pagination">
+        <button
+          :disabled="currentPage === 1"
+          @click="changePage(currentPage - 1)"
+        >
+          Anterior
+        </button>
+        <span>Página {{ currentPage }} de {{ totalPages }}</span>
+        <button
+          :disabled="currentPage === totalPages"
+          @click="changePage(currentPage + 1)"
+        >
+          Siguiente
+        </button>
+        <input
+          type="number"
+          v-model="inputPage"
+          @keyup.enter="goToPage"
+          :min="1"
+          :max="totalPages"
+          placeholder="Ir a página"
+          v-if="isAuthenticated"
+        />
+        <select
+          v-model="itemsPerPage"
+          @change="resetToFirstPage"
+          v-if="isAuthenticated"
+        >
+          <option :value="5">5 por página</option>
+          <option :value="10">10 por página</option>
+          <option :value="15">15 por página</option>
+          <option :value="20">20 por página</option>
+          <option :value="50">50 por página</option>
+        </select>
       </div>
     </div>
+    <details v-if="isAuthenticated">
+      <summary>Opciones de filtrado:</summary>
+      <div class="container_filters">
+        <h3>Filtrar por:</h3>
+        <!-- Filtros por Género -->
+        <details>
+          <summary>Generos:</summary>
+          <div class="filters">
+            <button
+              v-for="genero in listaGeneros"
+              :key="genero"
+              :class="{ activo: filtros.generos.includes(genero) }"
+              @click="toggleFiltro('generos', genero)"
+            >
+              {{ genero }}
+            </button>
+          </div>
+        </details>
 
+        <details>
+          <summary>Duración:</summary>
+          <div class="filters">
+            <button
+              v-for="duracion in listaDuracion"
+              :key="duracion"
+              :class="{ activo: filtros.duracion.includes(duracion) }"
+              @click="toggleFiltro('duracion', duracion)"
+            >
+              {{ duracion }}
+            </button>
+          </div>
+        </details>
+
+        <details>
+          <summary>Enfoque:</summary>
+          <div class="filters">
+            <button
+              v-for="enfoque in listaEnfoque"
+              :key="enfoque"
+              :class="{ activo: filtros.enfoque.includes(enfoque) }"
+              @click="toggleFiltro('enfoque', enfoque)"
+            >
+              {{ enfoque }}
+            </button>
+          </div>
+        </details>
+
+        <details>
+          <summary>Estado:</summary>
+          <div class="filters">
+            <button
+              v-for="estado in listaEstado"
+              :key="estado"
+              :class="{ activo: filtros.estado.includes(estado) }"
+              @click="toggleFiltro('estado', estado)"
+            >
+              {{ estado }}
+            </button>
+          </div>
+        </details>
+      </div>
+    </details>
     <transition name="blur" mode="out-in">
       <div v-if="loading" :class="isActive ? 'space_cards_2' : 'space_cards'">
-        <div class="card" v-for="mod in paginatedItems" :key="mod.id">
+        <div
+          class="card"
+          v-for="mod in paginatedItems"
+          :key="mod.id"
+          v-if="modsFiltrados.length > 0"
+        >
           <h3 class="nombre_mod">{{ mod.nombre }}</h3>
           <div class="banner_img">
             <Swiper
@@ -107,60 +173,16 @@
             <router-link :to="{ path: `/mod/${mod.slug}` }">Info</router-link>
           </div>
         </div>
+        <div v-else>
+          <h3 style="color: red; text-align: center; font-size: 3rem">
+            Sin datos :/
+          </h3>
+        </div>
       </div>
       <div v-else>
         <Loader></Loader>
       </div>
     </transition>
-
-    <div class="container_options">
-      <div class="visualizar">
-        <button @click="toggleViews" id="toggleView" v-if="isAuthenticated">
-          <img
-            v-if="!isActive"
-            src="../assets/gui/list_icon.svg"
-            alt=""
-            loading="lazy"
-          />
-          <img src="../assets/gui/grid_icon.svg" alt="" v-else loading="lazy" />
-        </button>
-        <div class="pagination">
-          <button
-            :disabled="currentPage === 1"
-            @click="changePage(currentPage - 1)"
-          >
-            Anterior
-          </button>
-          <span>Página {{ currentPage }} de {{ totalPages }}</span>
-          <button
-            :disabled="currentPage === totalPages"
-            @click="changePage(currentPage + 1)"
-          >
-            Siguiente
-          </button>
-          <input
-            type="number"
-            v-model="inputPage"
-            @keyup.enter="goToPage"
-            :min="1"
-            :max="totalPages"
-            placeholder="Ir a página"
-            v-if="isAuthenticated"
-          />
-          <select
-            v-model="itemsPerPage"
-            @change="resetToFirstPage"
-            v-if="isAuthenticated"
-          >
-            <option :value="5">5 por página</option>
-            <option :value="10">10 por página</option>
-            <option :value="15">15 por página</option>
-            <option :value="20">20 por página</option>
-            <option :value="50">50 por página</option>
-          </select>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -180,10 +202,6 @@ const props = defineProps({
   solicitud: { type: Number, required: true },
 });
 
-const isLoadedImage = ref(false);
-const handleLoad = () => {
-  isLoadedImage.value = true;
-};
 const mods = ref([]);
 const loading = ref(false);
 const error = ref("");
@@ -197,15 +215,170 @@ const currentPage = ref(1);
 const itemsPerPage = ref(10);
 const inputPage = ref("");
 
-const totalData = computed(() => mods.value.length);
+const listaGeneros = ref();
+const listaDuracion = ref();
+const listaEnfoque = ref();
+const listaEstado = ref();
+
+const fetchGeneros = async () => {
+  try {
+    const response = await fetch(
+      "https://api.dokidokispanish.club/mods/options/genere",
+      {
+        method: "GET",
+      }
+    );
+
+    if (response.ok) {
+      const data = await response.json();
+
+      listaGeneros.value = data.results.map((item) => item.genero);
+      return true;
+    } else {
+      return false;
+    }
+  } catch (error) {
+    return false;
+  }
+};
+
+const fetchDuracion = async () => {
+  try {
+    const response = await fetch(
+      "https://api.dokidokispanish.club/mods/options/duration",
+      {
+        method: "GET",
+      }
+    );
+
+    if (response.ok) {
+      const data = await response.json();
+
+      listaDuracion.value = data.results.map((item) => item.duracion);
+      return true;
+    } else {
+      return false;
+    }
+  } catch (error) {
+    return false;
+  }
+};
+
+const fetchEnfoque = async () => {
+  try {
+    const response = await fetch(
+      "https://api.dokidokispanish.club/mods/options/focus-on",
+      {
+        method: "GET",
+      }
+    );
+
+    if (response.ok) {
+      const data = await response.json();
+
+      listaEnfoque.value = data.results.map((item) => item.enfoque);
+      return true;
+    } else {
+      return false;
+    }
+  } catch (error) {
+    return false;
+  }
+};
+
+const fetchEstado = async () => {
+  try {
+    const response = await fetch(
+      "https://api.dokidokispanish.club/mods/options/status",
+      {
+        method: "GET",
+      }
+    );
+
+    if (response.ok) {
+      const data = await response.json();
+
+      listaEstado.value = data.results.map((item) => item.estado);
+      return true;
+    } else {
+      return false;
+    }
+  } catch (error) {
+    return false;
+  }
+};
+
+const filtros = ref({
+  generos: [],
+  duracion: [],
+  enfoque: [],
+  estado: [],
+});
+
+// Alternar filtros
+const toggleFiltro = (categoria, valor) => {
+  if (categoria === "generos") {
+    // Los géneros pueden tener múltiples valores seleccionados
+    const index = filtros.value[categoria].indexOf(valor);
+    if (index === -1) {
+      filtros.value[categoria].push(valor);
+    } else {
+      filtros.value[categoria].splice(index, 1);
+    }
+  } else {
+    // Para las demás categorías (duración, enfoque, estado), se permite un solo valor
+    if (filtros.value[categoria].includes(valor)) {
+      // Si la opción ya está seleccionada, la eliminamos
+      filtros.value[categoria] = [];
+    } else {
+      // Si no está seleccionada, la agregamos
+      filtros.value[categoria] = [valor];
+    }
+  }
+};
+
+const modsFiltrados = computed(() => {
+  return mods.value.filter((mod) => {
+    // Filtrar por géneros (asegurándonos de que el mod tenga todos los géneros seleccionados)
+    if (
+      filtros.value.generos.length > 0 &&
+      !filtros.value.generos.every((filtro) => mod.generos.includes(filtro))
+    )
+      return false;
+
+    // Filtrar por duración
+    if (
+      filtros.value.duracion.length > 0 &&
+      !filtros.value.duracion.includes(mod.duracion)
+    )
+      return false;
+
+    // Filtrar por enfoque
+    if (
+      filtros.value.enfoque.length > 0 &&
+      !filtros.value.enfoque.includes(mod.personaje)
+    )
+      return false;
+
+    // Filtrar por estado
+    if (
+      filtros.value.estado.length > 0 &&
+      !filtros.value.estado.includes(mod.estado)
+    )
+      return false;
+
+    return true;
+  });
+});
+
 const totalPages = computed(
-  () => Math.ceil(mods.value.length / itemsPerPage.value) || 1
+  () => Math.ceil(modsFiltrados.value.length / itemsPerPage.value) || 1
 );
 
 const paginatedItems = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage.value;
   const end = start + itemsPerPage.value;
-  return mods.value.slice(start, end);
+  return modsFiltrados.value.slice(start, end);
 });
 
 // Cambiar página
@@ -221,6 +394,10 @@ const goToPage = () => {
     currentPage.value = page;
   }
   inputPage.value = "";
+};
+
+const resetToFirstPage = () => {
+  currentPage.value = 1;
 };
 
 const toggleViews = () => {
@@ -276,6 +453,10 @@ const fetchMods = async () => {
 };
 
 onMounted(async () => {
+  await fetchGeneros();
+  await fetchDuracion();
+  await fetchEstado();
+  await fetchEnfoque();
   const response = await fetchMods();
   if (response) {
     loading.value = true;
@@ -305,6 +486,7 @@ onMounted(async () => {
   box-sizing: border-box;
   user-select: none !important;
   content-visibility: auto;
+  position: relative;
 }
 .container_cards h2:first-child {
   /* position: sticky;
@@ -320,11 +502,11 @@ onMounted(async () => {
   z-index: 90;
 }
 .container_options {
-  width: 100%;
+  width: fit-content;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  margin: 2% 0;
 }
 .space_cards {
   display: grid;
@@ -375,10 +557,14 @@ onMounted(async () => {
   width: 200px !important;
 }
 .card .nombre_mod {
+  overflow: hidden;
   font-weight: 600;
   text-align: center;
+  width: 90%;
+  text-overflow: ellipsis !important;
+  text-wrap: nowrap;
+  white-space: nowrap;
   display: flex;
-  justify-content: center;
   align-items: center;
 }
 
@@ -480,12 +666,13 @@ onMounted(async () => {
   color: #fff;
   text-decoration: none;
 }
-.container_options .visualizar button {
+
+.pagination button {
   background: var(--color_fondo) !important;
   color: #fff;
 }
 
-button:disabled {
+.pagination button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
@@ -493,13 +680,14 @@ button:disabled {
 .visualizar {
   width: 100%;
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
+  gap: 1rem;
   align-items: center;
   flex-wrap: wrap;
 }
 
 .visualizar .pagination {
-  width: 40dvw;
+  width: 50rem;
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
@@ -540,7 +728,7 @@ button:disabled {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 0.5%;
+  padding: 0.2rem;
   border-radius: 10px;
 }
 #toggleView img {
@@ -556,5 +744,64 @@ button:disabled {
   syntax: "<angle>";
   inherits: true;
   initial-value: 0deg;
+}
+
+.container_filters {
+  position: sticky;
+  width: 100%;
+  display: grid;
+  margin-top: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  top: 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  z-index: 100;
+  padding: 0.5rem;
+  border-radius: 10px;
+  background: #fffffffd;
+  backdrop-filter: blur(10px);
+  box-shadow: 0px 0px 10px 5px rgba(8, 8, 8, 0.171);
+}
+
+details {
+  position: sticky;
+  width: 100%;
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+summary {
+  margin-bottom: 1rem;
+}
+
+.container_filters details {
+  position: relative !important;
+}
+.filters {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.filters button {
+  border: 2px solid var(--color_fondo);
+  background: none !important;
+  color: #000;
+}
+
+.filters button.activo {
+  background: var(--color_fondo) !important;
+  color: #fff;
+}
+@media screen and (max-width: 800px) {
+  #toggleView {
+    display: none;
+  }
 }
 </style>

@@ -482,7 +482,7 @@ const fetchOptionsEstado = async () => {
 };
 
 const optionsGenero = ref([]); // Lista de géneros obtenidos de la API
-const selectedOptionsGenero = ref([]); // Géneros seleccionados
+const selectedOptionsGenero = ref([0]); // Géneros seleccionados
 const selectedValueGenero = ref(""); // Valor actual del select
 
 const fetchOptionsGenero = async () => {
