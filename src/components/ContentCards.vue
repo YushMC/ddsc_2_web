@@ -771,6 +771,7 @@ details {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  cursor: pointer;
 }
 
 summary {

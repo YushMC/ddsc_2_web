@@ -192,7 +192,7 @@ header {
   left: 0;
   background: var(--color_fondo);
   width: 100%;
-  height: 50px;
+  height: 55px;
   display: flex;
   flex-direction: column;
   align-items: center;

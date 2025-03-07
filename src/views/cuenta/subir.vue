@@ -481,7 +481,7 @@ const fetchOptionsEstado = async () => {
 };
 
 const optionsGenero = ref([]); // Lista de géneros obtenidos de la API
-const selectedOptionsGenero = ref([0]); // Géneros seleccionados
+const selectedOptionsGenero = ref([]); // Géneros seleccionados
 const selectedValueGenero = ref(""); // Valor actual del select
 
 const fetchOptionsGenero = async () => {
@@ -556,7 +556,10 @@ const registerMod = async () => {
     });
   }
 
-  if (selectedOptionsGenero.length === 0) {
+  if (
+    selectedOptionsGenero.length === 0 ||
+    selectedValueGenero.value.trim() == ""
+  ) {
     Swal.fire({
       title: "Error",
       text: "Debe seleccionar por lo menos 1 genero.",
