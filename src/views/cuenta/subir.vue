@@ -537,7 +537,6 @@ onMounted(() => {
 });
 
 const registerMod = async () => {
-
   if (nameMod.value.trim() === "") {
     Swal.fire({
       title: "Error",
@@ -566,25 +565,22 @@ const registerMod = async () => {
     });
   }
   Swal.fire({
-    title: 'Datos listos para guardar.',
-    text: '¿Desea continuar?',
-    icon: 'qustion',
+    title: "Datos listos para guardar.",
+    text: "¿Desea continuar?",
+    icon: "qustion",
     showCancelButton: true,
-    confirmButtonText: 'Continuar',
-    cancelButtonText: 'Cancelar',
+    confirmButtonText: "Continuar",
+    cancelButtonText: "Cancelar",
   }).then((result) => {
     if (result.isConfirmed) {
-      await fetchSubmit();
-    }
-    else {
+      fetchSubmit();
+    } else {
       return false;
     }
   });
-
-
 };
 
-const fetchSubmit = async ()=>{
+const fetchSubmit = async () => {
   const formData = new FormData();
   // Agregar los datos del formulario al FormData
   formData.append("name", nameMod.value);
@@ -666,7 +662,7 @@ const fetchSubmit = async ()=>{
       confirmButtonText: "Aceptar",
     });
   }
-}
+};
 document.title = "Subir Mod - Doki Doki Spanish Club";
 </script>
 
@@ -744,7 +740,7 @@ input {
   align-items: center;
 }
 .preview {
-  width: 48%;
+  width: 20rem;
   margin-inline: auto;
   display: flex;
   gap: 2rem;
@@ -762,5 +758,7 @@ input {
   z-index: 1;
   top: 0 !important;
   right: 0;
+  aspect-ratio: 4/3;
+  object-fit: contain;
 }
 </style>
