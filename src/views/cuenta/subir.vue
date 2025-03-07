@@ -68,7 +68,6 @@
           <label for="">Enfoque: </label>
           <select name="" id="" v-model="enfoqueMod">
             <option
-              value="1"
               v-for="option in optionsEnfoque"
               :key="option?.id"
               :value="option?.id"
