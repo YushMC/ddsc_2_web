@@ -136,6 +136,7 @@
         ></textarea>
         <button type="submit">Comentar</button>
       </form>
+      <!-- 
       <div class="paginacion">
         <button @click="pagina--" :disabled="pagina <= 1">Anterior</button>
         <span>Página {{ pagina }} de {{ totalPaginas }}</span>
@@ -143,28 +144,28 @@
           Siguiente
         </button>
       </div>
-
+      -->
       <ul v-if="comentarios.length > 0">
         <ComentarioItem
           v-for="comentario in comentarios"
           :key="comentario.id"
-          :comentario="comentario.comentario"
+          :comentario="comentario"
           :logo="comentario.usuario_logo"
           :banner="comentario.usuario_banner"
           :user="comentario.usuario_nombre"
           :id_comentario="comentario.id"
           :id_mod="comentario.id_mod"
+          :slug="comentario.slug"
           @respuesta="agregarRespuesta"
         />
       </ul>
-
       <!-- Controles de paginación -->
     </div>
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref, computed, watch } from "vue";
+import { onMounted, ref, computed, watch, onUnmounted } from "vue";
 import { Swiper, SwiperSlide } from "swiper/vue";
 import { useInfoToken } from "../composables/useInfoToken";
 const { isAuthenticated } = useInfoToken();
@@ -196,6 +197,7 @@ const route = useRoute();
 const mod = ref({});
 const mods = ref([]);
 const error = ref("");
+const isLoadComments = ref(false);
 
 const loading = ref(false);
 
@@ -241,9 +243,7 @@ const fetchModsId = async (id) => {
 
     const jsonData = await response.json();
     mod.value = jsonData.results || {};
-    console.log(mod.value);
     document.title = mod.value.nombre + " - Doki Doki Spanish Club";
-    obtenerComentarios(mod.value.id);
     return true;
   } catch (err) {
     error.value = err.message || "Error desconocido al cargar el mod.";
@@ -284,11 +284,13 @@ const totalPaginas = ref(1);
 const obtenerComentarios = async (id_mod) => {
   try {
     const res = await fetch(
-      `https://api.dokidokispanish.club/comments/${pagina.value}/5/${id_mod}`
+      `https://api.dokidokispanish.club/comments/${id_mod}`
     );
-    const data = await res.json();
-    comentarios.value = data.comentarios;
-    totalPaginas.value = data.total_paginas;
+    if (res.ok) {
+      const data = await res.json();
+      comentarios.value = data.comentarios;
+      isLoadComments.value = true;
+    }
   } catch (error) {
     console.error("Error al obtener comentarios:", error);
   }
@@ -333,7 +335,7 @@ const agregarComentario = async () => {
       icon: "success",
     });
     nuevoComentario.value = "";
-    obtenerComentarios();
+    await obtenerComentarios();
   } catch (error) {
     console.error("Error al agregar comentario:", error);
   }
@@ -350,12 +352,15 @@ watch(pagina, obtenerComentarios);
 fetchMods();
 onMounted(async () => {
   const reponse = await fetchModsId(route.params.id);
-
   if (reponse) {
     loading.value = true;
+    await obtenerComentarios(mod.value.id);
   } else {
     loading.value = false;
   }
+});
+onUnmounted(() => {
+  comentarios.value = [];
 });
 </script>
 

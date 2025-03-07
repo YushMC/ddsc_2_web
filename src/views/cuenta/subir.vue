@@ -537,22 +537,55 @@ onMounted(() => {
 });
 
 const registerMod = async () => {
-  const formData = new FormData();
-  if (
-    nameMod.value.trim() === "" ||
-    descriptionMod.value.trim() === "" ||
-    selectedOptions.length === 0 ||
-    selectedOptionsTraductor.length === 0 ||
-    selectedOptionsGenero.length === 0
-  ) {
+
+  if (nameMod.value.trim() === "") {
     Swal.fire({
       title: "Error",
-      text: "Por favor, rellena o selecciona todos los campos.",
+      text: "El titulo del mod no puede ser vacio.",
       icon: "error",
     });
     return false;
   }
+  if (descriptionMod.value.trim() === "") {
+    descriptionMod.value = "No hay una descripción disponible";
+  }
 
+  if (selectedOptions.length === 0) {
+    Swal.fire({
+      title: "Error",
+      text: "Debe colocar el nombre del creador.",
+      icon: "error",
+    });
+  }
+
+  if (selectedOptionsGenero.length === 0) {
+    Swal.fire({
+      title: "Error",
+      text: "Debe seleccionar por lo menos 1 genero.",
+      icon: "error",
+    });
+  }
+  Swal.fire({
+    title: 'Datos listos para guardar.',
+    text: '¿Desea continuar?',
+    icon: 'qustion',
+    showCancelButton: true,
+    confirmButtonText: 'Continuar',
+    cancelButtonText: 'Cancelar',
+  }).then((result) => {
+    if (result.isConfirmed) {
+      await fetchSubmit();
+    }
+    else {
+      return false;
+    }
+  });
+
+
+};
+
+const fetchSubmit = async ()=>{
+  const formData = new FormData();
   // Agregar los datos del formulario al FormData
   formData.append("name", nameMod.value);
   formData.append("descripcion", descriptionMod.value);
@@ -591,7 +624,7 @@ const registerMod = async () => {
 
   try {
     Swal.fire({
-      title: "Creando mod",
+      title: "Guardando datos del mod",
       text: "Por favor, espera un momento",
       allowOutsideClick: false, // Evita el cierre al hacer clic fuera
       didOpen: () => {
@@ -607,29 +640,15 @@ const registerMod = async () => {
     Swal.close();
     const data = await response.json();
     if (data.message) {
-      nameMod.value = "";
-      descriptionMod.value = "";
-      tipoMod.value = 1;
-      duracionMod.value = 1;
-      enfoqueMod.value = 1;
-      estadoMod.value = 1;
-      nsfwMod.value = 0;
-      linkMod.value = "";
-      linkModAndroid.value = "";
-      selectedOptions.value = [];
-      selectedOptionsTraductor.value = [];
-      selectedOptionsGenero.value = [];
-
-      portada.value.value = "";
-
-      logo.value.value = "";
-
-      capturas.value.files = "";
       Swal.fire({
-        title: "Mod Guardado!",
+        title: "Mod Cargado!",
         text: JSON.stringify(data.message),
         icon: "success",
         confirmButtonText: "Aceptar",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.reload();
+        }
       });
     } else {
       Swal.fire({
@@ -647,7 +666,8 @@ const registerMod = async () => {
       confirmButtonText: "Aceptar",
     });
   }
-};
+}
+document.title = "Subir Mod - Doki Doki Spanish Club";
 </script>
 
 <style scoped>

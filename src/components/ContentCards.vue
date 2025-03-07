@@ -56,7 +56,6 @@
           <h3 class="nombre_mod">{{ mod.nombre }}</h3>
           <div class="banner_img">
             <Swiper
-              v-if="mod.capturas.length !== 0 || mod?.portada.trim() !== ''"
               :modules="[Pagination, Navigation]"
               pagination
               class="mySwiper"
@@ -82,7 +81,18 @@
               </swiper-slide>
             </Swiper>
             <div class="container_img_logo">
-              <img :src="mod.logo" alt="" loading="lazy" />
+              <img
+                v-if="mod.logo !== null"
+                :src="mod.logo"
+                alt="Logo del mod"
+                loading="lazy"
+              />
+              <img
+                src="https://api.dokidokispanish.club/gui/window_icon.png"
+                alt="Logo base"
+                loading="lazy"
+                v-else
+              />
             </div>
           </div>
           <div class="descripcion">
@@ -102,6 +112,55 @@
         <Loader></Loader>
       </div>
     </transition>
+
+    <div class="container_options">
+      <div class="visualizar">
+        <button @click="toggleViews" id="toggleView" v-if="isAuthenticated">
+          <img
+            v-if="!isActive"
+            src="../assets/gui/list_icon.svg"
+            alt=""
+            loading="lazy"
+          />
+          <img src="../assets/gui/grid_icon.svg" alt="" v-else loading="lazy" />
+        </button>
+        <div class="pagination">
+          <button
+            :disabled="currentPage === 1"
+            @click="changePage(currentPage - 1)"
+          >
+            Anterior
+          </button>
+          <span>Página {{ currentPage }} de {{ totalPages }}</span>
+          <button
+            :disabled="currentPage === totalPages"
+            @click="changePage(currentPage + 1)"
+          >
+            Siguiente
+          </button>
+          <input
+            type="number"
+            v-model="inputPage"
+            @keyup.enter="goToPage"
+            :min="1"
+            :max="totalPages"
+            placeholder="Ir a página"
+            v-if="isAuthenticated"
+          />
+          <select
+            v-model="itemsPerPage"
+            @change="resetToFirstPage"
+            v-if="isAuthenticated"
+          >
+            <option :value="5">5 por página</option>
+            <option :value="10">10 por página</option>
+            <option :value="15">15 por página</option>
+            <option :value="20">20 por página</option>
+            <option :value="50">50 por página</option>
+          </select>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -220,10 +279,8 @@ onMounted(async () => {
   const response = await fetchMods();
   if (response) {
     loading.value = true;
-    console.log(loading.value);
   } else {
     loading.value = false;
-    console.log(loading.value);
   }
 });
 </script>

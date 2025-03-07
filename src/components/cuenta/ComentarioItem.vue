@@ -1,5 +1,8 @@
 <template>
-  <li>
+  <li
+    :id="props.id_comentario"
+    :class="{ contenedor_respuesta: respuestas.length > 0 }"
+  >
     <div
       class="comment"
       :style="{
@@ -12,60 +15,77 @@
             :src="`https://api.dokidokispanish.club/${props.logo}`"
             alt=""
             loading="lazy"
+            @click="router.push(`/comunidad/perfil/${props.slug}`)"
           />
-          <h5>{{ props.user }}</h5>
+          <h5 @click="router.push(`/comunidad/perfil/${props.slug}`)">
+            {{ props.user }}
+          </h5>
         </div>
-        <p>{{ props.comentario }}</p>
+        <p>{{ props.comentario.comentario }}</p>
       </div>
-
+      <!-- 
       <div class="actions">
-        <!-- Botón de "Me gusta" -->
         <button @click="toggleLike">{{ likes }} ❤️</button>
-        <!-- Botón para mostrar/ocultar el formulario de respuesta -->
+        <button @click="mostrarRespuesta = !mostrarRespuesta">Responder</button>
+      </div>
+      
+    -->
+      <div class="actions">
         <button @click="mostrarRespuesta = !mostrarRespuesta">Responder</button>
       </div>
     </div>
+
     <!-- Formulario de respuesta -->
     <form v-if="mostrarRespuesta" @submit.prevent="responder">
       <input v-model="respuestaTexto" placeholder="Escribe una respuesta" />
       <button type="submit">Enviar</button>
     </form>
-
     <!-- Subcomentarios -->
-    <ul>
-      <ComentarioItem
-        v-for="respuesta in comentario.respuestas"
-        :key="respuesta.id"
-        :id_comentario="respuesta.id"
-        :banner="respuesta.usuario_banner"
-        :logo="respuesta.usuario_logo"
-        :user="respuesta.usuario_nombre"
-        :comentario="respuesta.comentario"
-        :id_mod="respuesta.id_mod"
-        @respuesta="$emit('respuesta', $event)"
-      />
-    </ul>
+    <details v-if="respuestas.length > 0" class="respuestas">
+      <summary style="cursor: pointer; font-size: 1rem">Respuestas</summary>
+      <ul>
+        <ComentarioItem
+          v-for="respuesta in respuestas"
+          :key="respuesta.id"
+          :comentario="respuesta"
+          :logo="respuesta.usuario_logo"
+          :banner="respuesta.usuario_banner"
+          :user="respuesta.usuario_nombre"
+          :id_comentario="respuesta.id"
+          :id_mod="respuesta.id_mod"
+          :slug="respuesta.slug"
+        />
+      </ul>
+    </details>
   </li>
 </template>
 
 <script setup>
-import { ref, onMounted, defineProps, defineEmits } from "vue";
+import Swal from "sweetalert2";
+import Loader from "../Loader.vue";
+import { ref, onMounted, defineProps, defineEmits, onBeforeMount } from "vue";
 import ComentarioItem from "./ComentarioItem.vue";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 const props = defineProps({
-  comentario: String,
+  comentario: Object,
   banner: String,
   logo: String,
   user: String,
   id_mod: Number,
   id_comentario: Number,
+  slug: String,
 });
 const emit = defineEmits(["respuesta"]);
 
 const mostrarRespuesta = ref(false);
 const respuestaTexto = ref("");
 const likes = ref(0);
+const isLoadResponses = ref(false);
 
+/*
 // Obtener la cantidad de "me gusta"
 const obtenerLikes = async () => {
   try {
@@ -93,12 +113,11 @@ const toggleLike = async () => {
         }),
       }
     );
-    obtenerLikes(); // Actualizar el contador
   } catch (error) {
     console.error("Error al dar like:", error);
   }
 };
-
+*/
 // Enviar respuesta
 const responder = () => {
   if (!respuestaTexto.value.trim()) return;
@@ -108,8 +127,6 @@ const responder = () => {
 
 // Agregar un nuevo comentario
 const agregarComentario = async () => {
-  if (!nuevoComentario.value.trim()) return;
-
   try {
     Swal.fire({
       title: "Guardando tu comentario",
@@ -140,19 +157,36 @@ const agregarComentario = async () => {
         text: JSON.stringify(data.error),
       });
     }
+    respuestaTexto.value = "";
     Swal.fire({
       title: "Comentario guardado correctamente!",
       text: JSON.stringify(data.message),
       icon: "success",
     });
+    await obtenerComentarios();
   } catch (error) {
     console.error("Error al agregar comentario:", error);
   }
 };
+const respuestas = ref([]);
+const obtenerComentarios = async () => {
+  try {
+    const res = await fetch(
+      `https://api.dokidokispanish.club/comments/replies/${props.id_comentario}`
+    );
 
-obtenerLikes();
-onMounted(async () => {
-  await obtenerLikes();
+    if (res.ok) {
+      const data = await res.json();
+      respuestas.value = data.respuestas;
+      isLoadResponses.value = true;
+    }
+  } catch (error) {
+    console.error("Error al obtener comentarios:", error);
+  }
+};
+
+onBeforeMount(async () => {
+  await obtenerComentarios();
 });
 </script>
 
@@ -162,11 +196,15 @@ ul {
   list-style: none;
 }
 li {
+  min-width: 10rem;
   width: 100%;
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  position: relative;
+  right: 0;
 }
+
 .comment {
   width: 100%;
   background-position: center;
@@ -205,6 +243,25 @@ li {
   justify-content: start;
   align-items: center;
   background: rgba(0, 0, 0, 0.5);
+}
+.respuestas {
+  width: 100%;
+  min-width: 20rem !important;
+  position: relative;
+  display: flex;
+  justify-content: end;
+  align-items: end;
+  flex-direction: column;
+  gap: 1rem;
+}
+.respuestas li {
+  width: 90% !important;
+  gap: 0 !important;
+}
+.contenedor_respuesta {
+  padding: 1rem;
+  background: #ffffff83;
+  border-radius: 10px;
 }
 @media screen and (max-width: 800px) {
   .info {
