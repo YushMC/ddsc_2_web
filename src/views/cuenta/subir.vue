@@ -257,6 +257,36 @@
             </div>
           </div>
         </div>
+        <div class="container_input">
+          <label for="isSaga"
+            >Marcar esta casilla en caso de pertener a una saga</label
+          >
+          <input type="checkbox" v-model="isChecked" id="isSaga" />
+          <div class="container_selectes" v-if="isChecked">
+            <h6>El mod es de la saga:</h6>
+            <select v-model="selectedSaga">
+              <option value="" disabled>Seleccione la saga</option>
+              <option
+                v-for="saga in optionsSagas"
+                :key="saga.id"
+                :value="saga.id"
+              >
+                {{ saga?.titulo }}
+              </option>
+            </select>
+            <h6>y es:</h6>
+            <select v-model="selectedTipoModSaga">
+              <option value="" disabled>Seleccionar el tipo</option>
+              <option
+                v-for="sagaTipoMod in optionsTipoModSagas"
+                :key="sagaTipoMod.id"
+                :value="sagaTipoMod.id"
+              >
+                {{ sagaTipoMod?.tipo }}
+              </option>
+            </select>
+          </div>
+        </div>
         <button
           type="submit"
           style="width: 100% !important"
@@ -283,6 +313,11 @@ const nsfwMod = ref(0);
 const linkMod = ref("");
 const linkModAndroid = ref("");
 const fechaMod = ref("");
+
+const selectedSaga = ref(0);
+const selectedTipoModSaga = ref(0);
+
+const isChecked = ref(false);
 
 const logo = ref(null);
 const selectedFile = ref(null);
@@ -495,6 +530,33 @@ const fetchOptionsGenero = async () => {
     console.error("Error al obtener géneros:", error);
   }
 };
+const optionsSagas = ref([]);
+
+const fetchOptionsSagas = async () => {
+  try {
+    const response = await fetch(
+      "https://api.dokidokispanish.club/mods/options/all-sagas"
+    ); // Asegúrate de que esta URL devuelve un array de objetos con { id, genero }
+    const data = await response.json();
+    optionsSagas.value = data.results;
+  } catch (error) {
+    console.error("Error al obtener géneros:", error);
+  }
+};
+
+const optionsTipoModSagas = ref([]);
+
+const fetchOptionsTipoModSagas = async () => {
+  try {
+    const response = await fetch(
+      "https://api.dokidokispanish.club/mods/options/tipo-mod-sagas"
+    ); // Asegúrate de que esta URL devuelve un array de objetos con { id, genero }
+    const data = await response.json();
+    optionsTipoModSagas.value = data.results;
+  } catch (error) {
+    console.error("Error al obtener géneros:", error);
+  }
+};
 
 const addOptionGenero = () => {
   if (!selectedValueGenero.value) return; // Evita valores vacíos
@@ -533,11 +595,13 @@ onMounted(() => {
   fetchOptionsEstado();
   fetchOptionsEnfoque();
   fetchOptionsGenero();
+  fetchOptionsSagas();
+  fetchOptionsTipoModSagas();
 });
 
 const registerMod = async () => {
   if (nameMod.value.trim() === "") {
-    Swal.fire({
+    await Swal.fire({
       title: "Error",
       text: "El titulo del mod no puede ser vacio.",
       icon: "error",
@@ -548,28 +612,58 @@ const registerMod = async () => {
     descriptionMod.value = "No hay una descripción disponible";
   }
 
-  if (selectedOptions.length === 0) {
-    Swal.fire({
+  if (
+    !Array.isArray(selectedOptions.value) ||
+    selectedOptions.value.length < 1
+  ) {
+    await Swal.fire({
       title: "Error",
       text: "Debe colocar el nombre del creador.",
       icon: "error",
     });
+    return;
   }
 
   if (
-    selectedOptionsGenero.length === 0 ||
-    selectedValueGenero.value.trim() == ""
+    !Array.isArray(selectedOptionsGenero.value) ||
+    selectedOptionsGenero.value.length < 1
   ) {
-    Swal.fire({
+    await Swal.fire({
       title: "Error",
-      text: "Debe seleccionar por lo menos 1 genero.",
+      text: "Debe seleccionar por lo menos 1 género.",
       icon: "error",
     });
+    return;
   }
-  Swal.fire({
-    title: "Datos listos para guardar.",
-    text: "¿Desea continuar?",
-    icon: "qustion",
+
+  if (isChecked.value) {
+    if (selectedSaga.value == 0 && selectedTipoModSaga.value == 0) {
+      await Swal.fire({
+        title: "Error",
+        text: "No puedes asignar un mod a una saga sin antes seleccionar la saga y la categoria dentro de la saga.",
+        icon: "error",
+      });
+      return;
+    }
+
+    const result = await Swal.fire({
+      title: "Se detectó una vinculación a saga.",
+      text: "Esta acción no se podrá modificar en un futuro, ¿Deseas continuar?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Continuar",
+      cancelButtonText: "Cancelar",
+    });
+
+    if (!result.isConfirmed) {
+      return;
+    }
+  }
+
+  await Swal.fire({
+    title: "Datos listos para subir y enviar.",
+    text: "Recomendamos revisar los datos a subir, ¿Desea continuar?",
+    icon: "question",
     showCancelButton: true,
     confirmButtonText: "Continuar",
     cancelButtonText: "Cancelar",
@@ -596,6 +690,11 @@ const fetchSubmit = async () => {
   formData.append("linkAndroid", linkModAndroid.value);
   if (fechaMod.value.trim() !== "") {
     formData.append("fecha", fechaMod.value);
+  }
+
+  if (isChecked.value) {
+    formData.append("id_saga", selectedSaga.value);
+    formData.append("tipo_en_saga", selectedTipoModSaga.value);
   }
 
   // Agregar opciones seleccionadas
@@ -762,5 +861,13 @@ input {
   right: 0;
   aspect-ratio: 4/3;
   object-fit: contain;
+}
+.container_selectes {
+  width: 100%;
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 </style>
