@@ -167,6 +167,7 @@ onMounted(async () => {
   background-image: url("https://www.dokidokispanish.club/assets/gui/banner_inicio.jpg");
   background-size: cover;
   background-repeat: no-repeat;
+  background-attachment: fixed;
   grid-template-columns: 2fr 1fr;
   align-items: center;
   margin: 0;
