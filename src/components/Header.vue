@@ -98,8 +98,13 @@
           ></div>
         </div>
       </nav>
-      <button id="buttonMenu" @click="toggleMenu" v-if="!isMenuResponsive">
-        Mostrar
+      <button
+        id="buttonMenu"
+        @click="toggleMenu"
+        v-if="!isMenuResponsive"
+        style="font-size: 2rem"
+      >
+        <i class="bi bi-list"></i>
       </button>
       <div id="cerrarMenu" v-if="isMenuResponsive" @click="toggleMenu"></div>
     </div>

@@ -127,7 +127,7 @@ button {
   color: #fff;
   padding-inline: 1rem;
   padding-block: 0.5rem;
-  background: var(--color_fondo);
+  background: var(--color_fondo, #7e57c2);
   border: none;
 }
 
