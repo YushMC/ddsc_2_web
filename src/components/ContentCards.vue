@@ -49,7 +49,7 @@
         </select>
       </div>
     </div>
-    <details v-if="isAuthenticated">
+    <details v-if="isAuthenticated && props.solicitud !== 7">
       <summary>Opciones de filtrado:</summary>
       <div class="container_filters">
         <h3>Filtrar por:</h3>
