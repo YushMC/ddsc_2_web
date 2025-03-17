@@ -69,6 +69,7 @@
               />
             </div>
             <input
+              ref="inputRef"
               type="text"
               placeholder="Buscar"
               v-model="searchQuery"
@@ -106,20 +107,21 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch, nextTick } from "vue";
 import { useInfoToken } from "../composables/useInfoToken";
 
 const { tokenData, isAuthenticated } = useInfoToken();
 
-const isLoginUser = ref(false);
-const isMenuResponsive = ref(false);
-const isActiveSearchBar = ref(false);
+import { useHeaderComposable } from "../composables/useHeader";
+
+const { isLoginUser, isMenuResponsive, isActiveSearchBar } =
+  useHeaderComposable();
 
 const mods = ref([]);
 const url_logo = ref("");
 const searchQuery = ref(""); // Consulta de búsqueda
 const filteredMods = ref([]); // Resultados filtrados
-
+const inputRef = ref(null);
 const error = ref("");
 const ruta = ref("");
 const noti = ref("");
@@ -128,9 +130,16 @@ const toggleMenu = () => {
   isMenuResponsive.value = !isMenuResponsive.value;
 };
 
-const toggleSearchBar = () => {
+const toggleSearchBar = async () => {
   isActiveSearchBar.value = !isActiveSearchBar.value;
   searchQuery.value = "";
+
+  if (isActiveSearchBar.value) {
+    await nextTick(); // Asegurar que el DOM está actualizado
+    setTimeout(() => {
+      inputRef.value?.focus();
+    }, 50); // Pequeño retraso para asegurar que el input está disponible
+  }
 };
 // Filtrar mods en base al texto de búsqueda
 const filterMods = () => {
@@ -173,6 +182,15 @@ const fetchMods = async () => {
     error.value = err.message || "Error desconocido";
   }
 };
+
+watch(isActiveSearchBar, async (newValue) => {
+  if (newValue) {
+    await nextTick(); // Asegurar que Vue actualiza el DOM
+    setTimeout(() => {
+      inputRef.value?.focus();
+    }, 50); // Pequeño retraso para evitar problemas con el focus
+  }
+});
 
 // Cargar los mods al montar el componente
 onMounted(() => {
@@ -382,8 +400,9 @@ nav .enlaces a {
   background: none;
 }
 .icon_search_ico {
-  position: absolute;
-  top: 0.6rem;
+  display: none;
+  position: relative;
+  top: 15%;
   left: 0.5rem;
   width: 1.5rem;
 }
@@ -442,10 +461,6 @@ nav .enlaces a {
     width: 100vw;
     top: 0%;
     background: var(--color_fondo);
-  }
-  .icon_search_ico {
-    width: 1rem;
-    top: 0.05rem;
   }
   .search_bar input {
     padding-left: 1.6rem !important;

@@ -50,7 +50,6 @@ onMounted(async () => {
   --my-global-color: #a610ac;
 }
 main {
-  width: 100%;
   padding-top: 2dvh;
   background-size: cover;
   background-attachment: fixed;

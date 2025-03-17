@@ -1,7 +1,7 @@
 <template>
   <div class="container_cards">
     <h2>{{ seccion_titulo }} ({{ modsFiltrados.length }})</h2>
-    <div class="visualizar">
+    <div class="visualizar" v-if="props.solicitud !== 7">
       <div class="container_options">
         <button @click="toggleViews" id="toggleView">
           <img
@@ -13,7 +13,7 @@
           <img src="../assets/gui/grid_icon.svg" alt="" v-else loading="lazy" />
         </button>
       </div>
-      <div class="pagination">
+      <div class="pagination" v-if="props.solicitud !== 7">
         <button
           :disabled="currentPage === 1"
           @click="changePage(currentPage - 1)"
@@ -168,9 +168,12 @@
             </span>
             <h3><b>Duración:</b> {{ mod.duracion }}</h3>
             <h3><b>Estado:</b> {{ mod.estado }}</h3>
+            <h3 v-if="props.solicitud == 7"><b>Tipo: </b>{{ mod.tipo }}</h3>
           </div>
           <div class="botones_info">
-            <router-link :to="{ path: `/mod/${mod.slug}` }">Info</router-link>
+            <router-link :to="{ path: `/mod/${mod.slug}` }"
+              ><i class="bi bi-three-dots-vertical"></i> Info</router-link
+            >
           </div>
         </div>
         <div v-else>
@@ -434,6 +437,10 @@ const fetchMods = async () => {
     case 6:
       seccion_titulo.value = "Mods de la comunidad";
       ruta.value = "https://api.dokidokispanish.club/mods/community-mods";
+      break;
+    case 7:
+      seccion_titulo.value = "Mods Recientes";
+      ruta.value = "https://api.dokidokispanish.club/mods/mods-recents";
       break;
   }
 

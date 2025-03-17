@@ -22,7 +22,15 @@
 
 <script setup>
 document.title = "Traducciones - Doki Doki Spanish Club";
+import { onMounted } from "vue";
 import ContentCards from "../components/ContentCards.vue";
+
+import { useHeaderComposable } from "../composables/useHeader";
+const { isMenuResponsive } = useHeaderComposable();
+
+onMounted(() => {
+  isMenuResponsive.value = false;
+});
 </script>
 
 <style scoped>

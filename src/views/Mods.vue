@@ -23,6 +23,13 @@
 <script setup>
 document.title = "Mods - Doki Doki Spanish Club";
 import ContentCards from "../components/ContentCards.vue";
+import { onMounted } from "vue";
+import { useHeaderComposable } from "../composables/useHeader";
+const { isMenuResponsive } = useHeaderComposable();
+
+onMounted(() => {
+  isMenuResponsive.value = false;
+});
 </script>
 
 <style scoped>

@@ -163,6 +163,9 @@
 import { onBeforeMount, onMounted, ref, watch } from "vue";
 import Swal from "sweetalert2";
 
+import { useHeaderComposable } from "../composables/useHeader";
+const { isMenuResponsive, isLoginUser } = useHeaderComposable();
+
 import { useRouter } from "vue-router";
 const router = useRouter();
 // import ReCaptcha from "../components/ReCaptcha.vue";
@@ -177,7 +180,6 @@ const isloginActive = ref(true);
 const isRecoveryActive = ref(false);
 
 const authStore = useSessionStore();
-const isLoginUser = ref(false);
 
 const email = ref("");
 const password = ref("");
@@ -275,6 +277,7 @@ if (isAuthenticated.value && tokenData.value !== undefined) {
 
 onBeforeMount(() => {});
 onMounted(() => {
+  isMenuResponsive.value = false;
   if (localStorage.getItem("user")) {
     isLoginUser.value = true;
   }

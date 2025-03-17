@@ -8,7 +8,7 @@
           loading="lazy"
         />
         <div class="container_text">
-          <h1>Subir Mod</h1>
+          <h1>Editar Mod</h1>
           <p>
             Recuerda subir los datos correctos!, asegurate de contar con tu
             cuenta de DDSC antes de llenar este formulario.
@@ -19,8 +19,7 @@
         style="display: flex; flex-direction: column; width: 100%; gap: 2rem"
       >
         <div class="container_input">
-          <label for="">Nombre del Mod</label>
-          <input type="text" v-model="nameMod" />
+          <label for="">Nombre del Mod: {{ nameMod }}</label>
         </div>
         <div class="container_input">
           <label for="">Descripción: </label>
@@ -31,13 +30,7 @@
           </h6>
           <textarea type="text" v-model="descriptionMod" rows="10" cols="10">
           </textarea>
-        </div>
-        <div class="container_input">
-          <label for="">Tipo: </label>
-          <select name="" id="" v-model="tipoMod">
-            <option value="1">Traducción</option>
-            <option value="2">Mod Original</option>
-          </select>
+          <button @click.prevent="">Actualizar</button>
         </div>
         <div class="container_input">
           <label for="">Estado: </label>
@@ -50,6 +43,7 @@
               {{ option?.estado }}
             </option>
           </select>
+          <button @click.prevent="">Actualizar</button>
         </div>
         <div class="container_input">
           <label for="">Duración: </label>
@@ -62,6 +56,7 @@
               {{ option?.duracion }}
             </option>
           </select>
+          <button @click.prevent="">Actualizar</button>
         </div>
 
         <div class="container_input">
@@ -75,39 +70,12 @@
               {{ option?.enfoque }}
             </option>
           </select>
-        </div>
-        <div
-          class="container_input"
-          :class="{ options: selectedOptionsGenero.length > 0 }"
-        >
-          <label for="">Generos: </label>
-          <select v-model="selectedValueGenero" @change="addOptionGenero">
-            <option value="" disabled>Seleccione un género</option>
-            <option
-              v-for="option in optionsGenero"
-              :key="option?.id"
-              :value="option?.id"
-            >
-              {{ option?.genero }}
-            </option>
-          </select>
-          <label for="" v-if="selectedOptionsGenero.length > 0"
-            >Generos seleccionados:</label
-          >
-          <div class="selected-items" v-if="selectedOptionsGenero.length > 0">
-            <span
-              v-for="option in selectedOptionsGenero"
-              :key="option.id"
-              class="tag"
-            >
-              {{ option.genero }}
-              <button @click="removeOptionGenero(option)">✖</button>
-            </span>
-          </div>
+          <button @click.prevent="">Actualizar</button>
         </div>
         <div class="container_input" v-if="estadoMod !== 3">
           <label for="">Fecha de lanzamiento: </label>
           <input type="date" v-model="fechaMod" />
+          <button @click.prevent="">Actualizar</button>
         </div>
         <div class="container_input">
           <label for=""
@@ -117,14 +85,17 @@
             <option value="0">No</option>
             <option value="1">Sí</option>
           </select>
+          <button @click.prevent="">Actualizar</button>
         </div>
         <div class="container_input" v-if="estadoMod !== 3">
           <label for="">Link de descarga PC: </label>
           <input type="text" v-model="linkMod" />
+          <button @click.prevent="">Actualizar</button>
         </div>
         <div class="container_input" v-if="estadoMod !== 3">
           <label for="">Link de descarga Android: </label>
           <input type="text" v-model="linkModAndroid" />
+          <button @click.prevent="">Actualizar</button>
         </div>
         <div
           class="container_input"
@@ -257,36 +228,6 @@
             </div>
           </div>
         </div>
-        <div class="container_input">
-          <label for="isSaga"
-            >Marcar esta casilla en caso de pertener a una saga</label
-          >
-          <input type="checkbox" v-model="isChecked" id="isSaga" />
-          <div class="container_selectes" v-if="isChecked">
-            <h6>El mod es de la saga:</h6>
-            <select v-model="selectedSaga">
-              <option value="" disabled>Seleccione la saga</option>
-              <option
-                v-for="saga in optionsSagas"
-                :key="saga.id"
-                :value="saga.id"
-              >
-                {{ saga?.titulo }}
-              </option>
-            </select>
-            <h6>y es:</h6>
-            <select v-model="selectedTipoModSaga">
-              <option value="" disabled>Seleccionar el tipo</option>
-              <option
-                v-for="sagaTipoMod in optionsTipoModSagas"
-                :key="sagaTipoMod.id"
-                :value="sagaTipoMod.id"
-              >
-                {{ sagaTipoMod?.tipo }}
-              </option>
-            </select>
-          </div>
-        </div>
         <button
           type="submit"
           style="width: 100% !important"
@@ -301,7 +242,6 @@
 
 <script setup>
 import { useInfoToken } from "../../composables/useInfoToken";
-const { isAuthenticated } = useInfoToken();
 import { onMounted, ref, watch } from "vue";
 import Swal from "sweetalert2";
 
@@ -314,11 +254,6 @@ const nsfwMod = ref(0);
 const linkMod = ref("");
 const linkModAndroid = ref("");
 const fechaMod = ref("");
-
-const selectedSaga = ref(0);
-const selectedTipoModSaga = ref(0);
-
-const isChecked = ref(false);
 
 const logo = ref(null);
 const selectedFile = ref(null);
@@ -531,33 +466,6 @@ const fetchOptionsGenero = async () => {
     console.error("Error al obtener géneros:", error);
   }
 };
-const optionsSagas = ref([]);
-
-const fetchOptionsSagas = async () => {
-  try {
-    const response = await fetch(
-      "https://api.dokidokispanish.club/mods/options/all-sagas"
-    ); // Asegúrate de que esta URL devuelve un array de objetos con { id, genero }
-    const data = await response.json();
-    optionsSagas.value = data.results;
-  } catch (error) {
-    console.error("Error al obtener géneros:", error);
-  }
-};
-
-const optionsTipoModSagas = ref([]);
-
-const fetchOptionsTipoModSagas = async () => {
-  try {
-    const response = await fetch(
-      "https://api.dokidokispanish.club/mods/options/tipo-mod-sagas"
-    ); // Asegúrate de que esta URL devuelve un array de objetos con { id, genero }
-    const data = await response.json();
-    optionsTipoModSagas.value = data.results;
-  } catch (error) {
-    console.error("Error al obtener géneros:", error);
-  }
-};
 
 const addOptionGenero = () => {
   if (!selectedValueGenero.value) return; // Evita valores vacíos
@@ -590,26 +498,17 @@ const removeOptionGenero = (option) => {
   );
 };
 
-onMounted(async () => {
+onMounted(() => {
   fetchOptions();
   fetchOptionsDuracion();
   fetchOptionsEstado();
   fetchOptionsEnfoque();
   fetchOptionsGenero();
-  fetchOptionsSagas();
-  fetchOptionsTipoModSagas();
-  if (!isAuthenticated.value) {
-    await Swal.fire({
-      icon: "warning",
-      title: "Es necesario tener una cuenta.",
-      text: "Antes de llenar este formulario, recomendamos primero iniciar sesión!",
-    });
-  }
 });
 
 const registerMod = async () => {
   if (nameMod.value.trim() === "") {
-    await Swal.fire({
+    Swal.fire({
       title: "Error",
       text: "El titulo del mod no puede ser vacio.",
       icon: "error",
@@ -620,58 +519,28 @@ const registerMod = async () => {
     descriptionMod.value = "No hay una descripción disponible";
   }
 
-  if (
-    !Array.isArray(selectedOptions.value) ||
-    selectedOptions.value.length < 1
-  ) {
-    await Swal.fire({
+  if (selectedOptions.length === 0) {
+    Swal.fire({
       title: "Error",
       text: "Debe colocar el nombre del creador.",
       icon: "error",
     });
-    return;
   }
 
   if (
-    !Array.isArray(selectedOptionsGenero.value) ||
-    selectedOptionsGenero.value.length < 1
+    selectedOptionsGenero.length === 0 ||
+    selectedValueGenero.value.trim() == ""
   ) {
-    await Swal.fire({
+    Swal.fire({
       title: "Error",
-      text: "Debe seleccionar por lo menos 1 género.",
+      text: "Debe seleccionar por lo menos 1 genero.",
       icon: "error",
     });
-    return;
   }
-
-  if (isChecked.value) {
-    if (selectedSaga.value == 0 && selectedTipoModSaga.value == 0) {
-      await Swal.fire({
-        title: "Error",
-        text: "No puedes asignar un mod a una saga sin antes seleccionar la saga y la categoria dentro de la saga.",
-        icon: "error",
-      });
-      return;
-    }
-
-    const result = await Swal.fire({
-      title: "Se detectó una vinculación a saga.",
-      text: "Esta acción no se podrá modificar en un futuro, ¿Deseas continuar?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Continuar",
-      cancelButtonText: "Cancelar",
-    });
-
-    if (!result.isConfirmed) {
-      return;
-    }
-  }
-
-  await Swal.fire({
-    title: "Datos listos para subir y enviar.",
-    text: "Recomendamos revisar los datos a subir, ¿Desea continuar?",
-    icon: "question",
+  Swal.fire({
+    title: "Datos listos para guardar.",
+    text: "¿Desea continuar?",
+    icon: "qustion",
     showCancelButton: true,
     confirmButtonText: "Continuar",
     cancelButtonText: "Cancelar",
@@ -698,11 +567,6 @@ const fetchSubmit = async () => {
   formData.append("linkAndroid", linkModAndroid.value);
   if (fechaMod.value.trim() !== "") {
     formData.append("fecha", fechaMod.value);
-  }
-
-  if (isChecked.value) {
-    formData.append("id_saga", selectedSaga.value);
-    formData.append("tipo_en_saga", selectedTipoModSaga.value);
   }
 
   // Agregar opciones seleccionadas
@@ -869,13 +733,5 @@ input {
   right: 0;
   aspect-ratio: 4/3;
   object-fit: contain;
-}
-.container_selectes {
-  width: 100%;
-  display: flex;
-  justify-content: start;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 1rem;
 }
 </style>

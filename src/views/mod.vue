@@ -43,7 +43,15 @@
       <div class="content_info" style="background: none !important">
         <div class="content_logo">
           <h1>{{ mod.nombre }}</h1>
-          <img :src="mod.logo" alt="" loading="lazy" />
+          <img
+            :src="
+              mod.logo && mod.logo !== ''
+                ? mod.logo
+                : 'https://api.dokidokispanish.club/gui/window_icon.png'
+            "
+            alt="Logo del mod"
+            loading="lazy"
+          />
         </div>
         <p>{{ mod.descripcion }}</p>
         <div class="enlaces">
@@ -52,14 +60,14 @@
             :class="{ enlace_desactivado: islinkPcDisable }"
             @click="preventAction(islinkPcDisable)"
             target="_blank"
-            >Descargar para PC</a
+            ><i class="bi bi-download"></i> Descargar para PC</a
           >
           <a
             :href="mod.android"
             :class="{ enlace_desactivado: islinkAndroidDisable }"
             @click="preventAction(islinkAndroidDisable)"
             target="_blank"
-            >Descargar para Android</a
+            ><i class="bi bi-download"></i> Descargar para Android</a
           >
         </div>
         <div class="otros_datos">
@@ -102,7 +110,7 @@
     <div v-else>
       <Loader></Loader>
     </div>
-    <div class="relacionados" v-if="filteredItems.length > 1">
+    <div class="relacionados" v-if="filteredItems.length > 0">
       <h2>Mods Relacionados:</h2>
       <Swiper
         v-if="filteredItems.length"
@@ -111,22 +119,36 @@
         pagination
         class="mySwiper"
         :breakpoints="{
-          320: { slidesPerView: 1, spaceBetween: 10 }, // Teléfonos pequeños
-          640: { slidesPerView: 3, spaceBetween: 15 }, // Teléfonos más grandes
-          768: { slidesPerView: 4, spaceBetween: 20 }, // Pantallas grandes
+          800: { slidesPerView: 1, spaceBetween: 10 }, // Teléfonos pequeños
+          1200: { slidesPerView: 3, spaceBetween: 10 }, // Teléfonos más grandes
         }"
       >
         <swiper-slide v-for="relatedMod in filteredItems" :key="relatedMod.id">
-          <img :src="relatedMod.url_img" alt="Imagen del mod" loading="lazy" />
+          <img
+            :src="
+              relatedMod.portada && relatedMod.portada !== ''
+                ? relatedMod.portada
+                : 'https://api.dokidokispanish.club/gui/Imagen-no-disponible.jpg'
+            "
+            alt="Imagen del mod"
+            loading="lazy"
+          />
           <h3 style="text-align: center">{{ relatedMod.nombre }}</h3>
-          <h3>Genero: <br />{{ relatedMod.genero }}</h3>
-          <h3>Tipo: <br />{{ relatedMod.tipo_mod }}</h3>
-          <router-link :to="{ path: `/mod/${relatedMod.id}` }">Ver</router-link>
+          <h3>Generos:</h3>
+          <div class="container_generos">
+            <span v-for="(genero, index) in relatedMod.generos" :key="index"
+              >{{ genero }}
+            </span>
+          </div>
+          <h3>Tipo: <br />{{ relatedMod.tipo }}</h3>
+          <router-link :to="{ path: `/mod/${relatedMod.slug}` }"
+            ><i class="bi bi-three-dots-vertical"></i> Ver</router-link
+          >
         </swiper-slide>
       </Swiper>
     </div>
 
-    <div class="comentarios" v-if="isAuthenticated">
+    <div class="comentarios">
       <h2>Comentarios</h2>
 
       <form @submit.prevent="agregarComentario">
@@ -156,7 +178,6 @@
           :id_comentario="comentario.id"
           :id_mod="comentario.id_mod"
           :slug="comentario.slug"
-          @respuesta="agregarRespuesta"
         />
       </ul>
       <!-- Controles de paginación -->
@@ -169,6 +190,8 @@ import { onMounted, ref, computed, watch, onUnmounted } from "vue";
 import { Swiper, SwiperSlide } from "swiper/vue";
 import { useInfoToken } from "../composables/useInfoToken";
 const { isAuthenticated } = useInfoToken();
+import { useHeaderComposable } from "../composables/useHeader";
+const { isMenuResponsive, isActiveSearchBar } = useHeaderComposable();
 import Swal from "sweetalert2";
 import "swiper/css";
 import "swiper/css/navigation";
@@ -195,7 +218,7 @@ const setThumbsSwiper = (swiper) => {
 
 const route = useRoute();
 const mod = ref({});
-const mods = ref([]);
+const mods = ref({});
 const error = ref("");
 const isLoadComments = ref(false);
 
@@ -226,12 +249,17 @@ const preventAction = (isDisabled) => {
 };
 
 const filteredItems = computed(() => {
-  if (!mod.value || !mods.value.length) return [];
-  return mods.value.filter((modFilter) => {
-    // Evitar incluir el mod actual
+  // Verifica si mod.value y sus propiedades están definidas
+
+  return Object.values(mods.value).filter((modFilter) => {
+    const mismoGenero =
+      Array.isArray(modFilter.genero) &&
+      modFilter.genero.some((genre) => genre === mod.value.genero);
+    const mismoEnfoque = modFilter.personaje === mod.value.personaje;
+
     return (
-      modFilter.genero === mod.value.genero &&
-      modFilter.enfoque === mod.value.enfoque
+      modFilter.id !== mod.value.id && // Excluir el mod actual
+      (mismoGenero || mismoEnfoque) // Permitir coincidencias por género o enfoque
     );
   });
 });
@@ -253,9 +281,7 @@ const fetchModsId = async (id) => {
 
 const fetchMods = async () => {
   try {
-    const response = await fetch(
-      "https://www.dokidokispanish.club/api_ddsc/mods"
-    );
+    const response = await fetch("https://api.dokidokispanish.club/mods");
     if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
 
     const jsonData = await response.json();
@@ -267,8 +293,17 @@ const fetchMods = async () => {
 // Detectar cambios en el parámetro de ruta "id"
 watch(
   () => route.params.id,
-  (newId) => {
-    if (newId) fetchModsId(newId);
+  async (newId) => {
+    if (newId) {
+      const response = fetchModsId(newId);
+      console.log(newId);
+      if (response) {
+        await obtenerComentarios(newId);
+        await fetchMods();
+      }
+      isActiveSearchBar.value = false;
+      isMenuResponsive.value = false;
+    }
     window.scrollTo({ top: 0, behavior: "smooth" }); // Desplazar al inicio
   }
 );
@@ -349,14 +384,24 @@ const cambiarPagina = (delta) => {
 // Observar cambios en la página y cargar los comentarios
 watch(pagina, obtenerComentarios);
 
-fetchMods();
 onMounted(async () => {
+  isActiveSearchBar.value = false;
+  isMenuResponsive.value = false;
+  await fetchMods();
   const reponse = await fetchModsId(route.params.id);
   if (reponse) {
     loading.value = true;
-    await obtenerComentarios(mod.value.id);
+    await obtenerComentarios(mod.value.slug);
   } else {
     loading.value = false;
+  }
+
+  if (!islinkAndroidDisable && !islinkPcDisable) {
+    await Swal.fire({
+      icon: "warning",
+      title: "No hay links de descarga.",
+      text: "No se detectó ningun enlace de descarga disponible, esta página del mod será solo informativa.",
+    });
   }
 });
 onUnmounted(() => {
@@ -494,21 +539,38 @@ onUnmounted(() => {
 
 .relacionados .swiper-slide {
   width: 8dvw;
-  height: fit-content !important;
+  height: 450px !important;
+  overflow-y: auto;
+  overflow-x: hidden;
   border: 2px solid var(--color_fondo);
   border-radius: 10px;
   padding: 1%;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: auto auto auto 1fr auto;
+  align-items: start;
   gap: 1rem;
   overflow: hidden;
 }
+.container_generos {
+  width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+}
+
+.container_generos span {
+  padding: 0.5rem;
+  border: 2px solid var(--color_fondo);
+  border-radius: 10px;
+}
 
 .relacionados .swiper-slide img {
-  aspect-ratio: 1/1;
+  aspect-ratio: 9/16;
   width: 100%;
-  height: 15dvh;
-  object-fit: contain;
+  height: 20dvh;
+  object-fit: cover;
   border-radius: 10px !important;
 }
 .relacionados .swiper-slide h3 {
@@ -620,12 +682,19 @@ onUnmounted(() => {
   .mySwiper2 {
     width: 20rem !important;
   }
-  .mySwiper {
+  .portada .mySwiper {
     display: none !important;
     height: 50dvh !important;
   }
   .content_info {
     background: none !important;
+  }
+  .relacionados .swiper-slide {
+    height: fit-content !important;
+  }
+
+  .relacionados .swiper-slide img {
+    height: 40dvh;
   }
 }
 </style>

@@ -17,7 +17,9 @@
       </div>
       <div class="container_cards">
         <div class="card">
-          <h4>Editar perfil <span>*</span></h4>
+          <h4>
+            <i class="bi bi-pencil-fill"></i> Editar perfil <span>*</span>
+          </h4>
           <ul>
             <li>Foto de perfil, banner y fondo de pantalla</li>
             <li>Cambiar contraseña</li>
@@ -25,7 +27,7 @@
           <button @click="isActiveModal = true">Editar</button>
         </div>
         <div class="card">
-          <h4>Notificaciones</h4>
+          <h4><i class="bi bi-bell-fill"></i> Notificaciones</h4>
           <label for="encenderNoti">Activar Notificaciones</label>
           <input
             type="checkbox"
@@ -44,7 +46,7 @@
             tokenData.rol_nombre == 'editor'
           "
         >
-          <h4>Subir Mods</h4>
+          <h4><i class="bi bi-upload"></i> Subir Mods</h4>
 
           <router-link to="/cuenta/subir">Subir</router-link>
         </div>
@@ -58,7 +60,9 @@
             v-model="title_notification"
             maxlength="20"
           />
-          <label for="mensajeNoti">Mensaje</label>
+          <label for="mensajeNoti"
+            ><i class="bi bi-send-fill"></i> Mensaje</label
+          >
           <textarea
             name=""
             id="mensajeNoti"
@@ -67,7 +71,9 @@
             v-model="body_notification"
             maxlength="100"
           ></textarea>
-          <button @click="enviarPush">Enviar</button>
+          <button @click="enviarPush">
+            <i class="bi bi-send-fill"></i> Enviar
+          </button>
         </div>
       </div>
       <div class="buttons">
@@ -192,6 +198,12 @@ onMounted(async () => {
   if (existingSubscription) {
     isChecked.value = true;
   }
+
+  await Swal.fire({
+    icon: "info",
+    title: "Sección en construcción.",
+    text: "Estamos trabajando en esta sección, pronto tendremos nuevas funciones y mejoras!",
+  });
 });
 
 async function solicitarPermiso() {
