@@ -598,13 +598,6 @@ onMounted(async () => {
   fetchOptionsGenero();
   fetchOptionsSagas();
   fetchOptionsTipoModSagas();
-  if (!isAuthenticated.value) {
-    await Swal.fire({
-      icon: "warning",
-      title: "Es necesario tener una cuenta.",
-      text: "Antes de llenar este formulario, recomendamos primero iniciar sesión!",
-    });
-  }
 });
 
 const registerMod = async () => {

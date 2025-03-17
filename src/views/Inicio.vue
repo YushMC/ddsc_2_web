@@ -158,6 +158,8 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(5px);
 }
 .frontPage {
   width: 100%;
@@ -168,6 +170,7 @@ onMounted(async () => {
   grid-template-columns: 2fr 1fr;
   align-items: center;
   margin: 0;
+  border-bottom: solid 10px var(--color_fondo);
 }
 
 .text {
