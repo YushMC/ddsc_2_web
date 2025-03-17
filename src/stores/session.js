@@ -233,6 +233,7 @@ export const useSessionStore = defineStore("session", {
       );
       Swal.close();
       if (!response.ok) {
+        const data = await response.json();
         Swal.fire({
           icon: "error",
           title: "Ocurrio un error al actualizar la foto de perfil.",
@@ -271,6 +272,7 @@ export const useSessionStore = defineStore("session", {
       );
       Swal.close();
       if (!response.ok) {
+        const data = await response.json();
         Swal.fire({
           icon: "error",
           title: "Ocurrio un error al actualizar el banner de perfil.",
@@ -309,6 +311,7 @@ export const useSessionStore = defineStore("session", {
       );
       Swal.close();
       if (!response.ok) {
+        const data = await response.json();
         Swal.fire({
           icon: "error",
           title: "Ocurrio un error al actualizar el fondo de pantalla.",
@@ -385,10 +388,11 @@ export const useSessionStore = defineStore("session", {
       );
       Swal.close();
       if (!response.ok) {
+        const data = await response.json();
         Swal.fire({
           icon: "error",
           title: "Ocurrio un error al actualizar el alias.",
-          text: JSON.stringify(response.json().data.error),
+          text: JSON.stringify(data.error),
         });
         return false;
       }
