@@ -1,5 +1,8 @@
 <template>
   <div class="estructura">
+    <router-link :to="`/cuenta/editar/${mod.slug}`" id="edit" v-if="esPermitido"
+      ><i class="bi bi-pencil-fill"></i> Editar</router-link
+    >
     <div class="portada" v-if="loading">
       <div class="content_swiper">
         <Swiper
@@ -189,7 +192,7 @@
 import { onMounted, ref, computed, watch, onUnmounted } from "vue";
 import { Swiper, SwiperSlide } from "swiper/vue";
 import { useInfoToken } from "../composables/useInfoToken";
-const { isAuthenticated } = useInfoToken();
+const { isAuthenticated, tokenData } = useInfoToken();
 import { useHeaderComposable } from "../composables/useHeader";
 const { isMenuResponsive, isActiveSearchBar } = useHeaderComposable();
 import Swal from "sweetalert2";
@@ -214,6 +217,25 @@ const thumbsSwiper = ref(null);
 
 const setThumbsSwiper = (swiper) => {
   thumbsSwiper.value = swiper;
+};
+
+const esPermitido = ref(false);
+
+const checkPermisions = () => {
+  if (tokenData.value) {
+    console.log(tokenData.value);
+    if (tokenData.value?.rol == 4 || tokenData.value.rol == 5) {
+      esPermitido.value = true;
+    }
+
+    if (mod.value.traductores.includes(tokenData.value?.alias)) {
+      esPermitido.value = true;
+    }
+
+    if (mod.value.creadores.includes(tokenData.value?.alias)) {
+      esPermitido.value = true;
+    }
+  }
 };
 
 const route = useRoute();
@@ -390,6 +412,7 @@ onMounted(async () => {
   await fetchMods();
   const reponse = await fetchModsId(route.params.id);
   if (reponse) {
+    checkPermisions();
     loading.value = true;
     await obtenerComentarios(mod.value.slug);
   } else {
@@ -696,5 +719,13 @@ onUnmounted(() => {
   .relacionados .swiper-slide img {
     height: 40dvh;
   }
+}
+
+#edit {
+  position: fixed;
+  top: 10dvh;
+  left: 2rem;
+  z-index: 100;
+  background: green !important;
 }
 </style>

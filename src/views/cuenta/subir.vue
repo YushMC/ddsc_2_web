@@ -742,6 +742,7 @@ const fetchSubmit = async () => {
         title: "Mod Cargado!",
         text: JSON.stringify(data.message),
         icon: "success",
+        allowOutsideClick: false, // Evita el cierre al hacer clic fuera
         confirmButtonText: "Aceptar",
       }).then((result) => {
         if (result.isConfirmed) {

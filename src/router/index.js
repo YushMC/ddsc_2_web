@@ -7,6 +7,7 @@ import Login from "../views/login.vue";
 import cuentaInicio from "../views/cuenta/index.vue";
 import perfil from "../views/comunidad/perfil.vue";
 import subir from "../views/cuenta/subir.vue";
+import editar from "../views/cuenta/editar.vue";
 
 import { useInfoToken } from "../composables/useInfoToken.js";
 
@@ -60,6 +61,12 @@ const routes = [
     path: "/cuenta/subir",
     name: "Subir Mod",
     component: subir,
+  },
+  {
+    path: "/cuenta/editar/:slug",
+    name: "EditarMod",
+    component: editar,
+    props: true, // Pasar parámetros de la URL como props
   },
 ];
 
