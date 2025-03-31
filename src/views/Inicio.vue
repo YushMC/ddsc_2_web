@@ -185,7 +185,7 @@ onMounted(async () => {
   background: var(--color_fondo_transparente);
   backdrop-filter: blur(10px);
   padding-left: 10%;
-  padding-top: 10%;
+  padding-top: 10dvh;
   padding-bottom: 10%;
   color: #fff;
 }

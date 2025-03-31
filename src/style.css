@@ -252,7 +252,7 @@ button {
 }
 .estructura {
   position: relative;
-  padding-top: 60px;
+  padding-top: 10dvh;
 }
 @media screen and (max-width: 800px) {
   .content_info {

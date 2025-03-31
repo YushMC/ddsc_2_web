@@ -11,6 +11,16 @@
       <router-link :to="{ path: `/mod/${item.id_mod}` }">Ver Más</router-link>
     </div>
     -->
+    <div
+      style="
+        background: tomato;
+        width: 100%;
+        text-align: center;
+        padding: 0.1rem;
+      "
+    >
+      <h6><i class="bi bi-tools"></i> Sitio en construcción</h6>
+    </div>
 
     <div class="container_header">
       <router-link class="container_sitio" to="/" style="text-decoration: none">
@@ -215,7 +225,7 @@ header {
   left: 0;
   background: var(--color_fondo);
   width: 100%;
-  height: 55px;
+  height: 9dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
