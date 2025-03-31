@@ -5,11 +5,14 @@
         <div class="welcome">
           <h1>Hola {{ tokenData.nombre }}!</h1>
           <h3>Rol: {{ tokenData.rol_nombre }}</h3>
+          <!-- 
           <router-link
             :to="`/comunidad/perfil/${tokenData.slug}`"
             v-if="tokenData.slug"
             >Ver Perfil</router-link
           >
+        -->
+          <button class="exit" @click="closeSession">Cerrar Sesión</button>
         </div>
         <picture>
           <img :src="tokenData.url_logo" alt="" loading="lazy" />
@@ -76,9 +79,7 @@
           </button>
         </div>
       </div>
-      <div class="buttons">
-        <button class="exit" @click="closeSession">Cerrar Sesión</button>
-      </div>
+      <div class="buttons"></div>
     </div>
     <modalEdits></modalEdits>
     <div class="aspect" v-if="route.path == '/cuenta' && isAuthenticated">
