@@ -25,7 +25,7 @@ export const useSessionStore = defineStore("session", {
             email: email,
             password: pass,
           }),
-          credentials: "include", // Importante para manejar cookies HTTP-only
+          // credentials: "include", // Importante para manejar cookies HTTP-only
         });
         const data = await response.json();
         Swal.close();

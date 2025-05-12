@@ -485,4 +485,8 @@ nav .enlaces a {
     backdrop-filter: blur(30px) !important;
   }
 }
+
+a {
+  background: none !important;
+}
 </style>

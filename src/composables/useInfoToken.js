@@ -12,7 +12,7 @@ export const useInfoToken = () => {
     try {
       const response = await fetch("https://api.dokidokispanish.club/session", {
         method: "GET",
-        credentials: "include", // Importante para incluir cookies HTTP-Only
+        //credentials: "include", // Importante para incluir cookies HTTP-Only
       });
 
       if (!response.ok) {

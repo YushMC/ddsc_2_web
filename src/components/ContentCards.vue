@@ -1,5 +1,5 @@
 <template>
-  <div class="container_cards">
+  <div class="container_cards" v-if="loading">
     <h2>{{ seccion_titulo }} ({{ modsFiltrados.length }})</h2>
     <div class="visualizar" v-if="props.solicitud !== 7">
       <div class="container_options">
@@ -9,6 +9,7 @@
             src="../assets/gui/list_icon.svg"
             alt=""
             loading="lazy"
+            decoding="async"
           />
           <img src="../assets/gui/grid_icon.svg" alt="" v-else loading="lazy" />
         </button>
@@ -112,7 +113,7 @@
       </div>
     </details>
     <transition name="blur" mode="out-in">
-      <div v-if="loading" :class="isActive ? 'space_cards_2' : 'space_cards'">
+      <div :class="isActive ? 'space_cards_2' : 'space_cards'">
         <div
           class="card"
           v-for="mod in paginatedItems"
@@ -136,6 +137,7 @@
                   src="https://api.dokidokispanish.club/gui/Imagen-no-disponible.jpg"
                   alt=""
                   loading="lazy"
+                  decoding="async"
                 />
               </swiper-slide>
               <swiper-slide
@@ -143,7 +145,12 @@
                 :key="index"
                 v-if="mod.capturas.length !== 0"
               >
-                <img :src="url" alt="Imagen del mod" loading="lazy" />
+                <img
+                  :src="url"
+                  alt="Imagen del mod"
+                  loading="lazy"
+                  decoding="async"
+                />
               </swiper-slide>
             </Swiper>
             <div class="container_img_logo">
@@ -182,10 +189,10 @@
           </h3>
         </div>
       </div>
-      <div v-else>
-        <Loader></Loader>
-      </div>
     </transition>
+  </div>
+  <div v-else>
+    <Loader></Loader>
   </div>
 </template>
 

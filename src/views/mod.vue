@@ -1,9 +1,9 @@
 <template>
-  <div class="estructura">
+  <div class="estructura" v-if="loading">
     <router-link :to="`/cuenta/editar/${mod.slug}`" id="edit" v-if="esPermitido"
       ><i class="bi bi-pencil-fill"></i> Editar</router-link
     >
-    <div class="portada" v-if="loading">
+    <div class="portada">
       <div class="content_swiper">
         <Swiper
           :modules="[Navigation, Pagination, Autoplay, FreeMode, Thumbs]"
@@ -110,9 +110,6 @@
         </div>
       </div>
     </div>
-    <div v-else>
-      <Loader></Loader>
-    </div>
     <div class="relacionados" v-if="filteredItems.length > 0">
       <h2>Mods Relacionados:</h2>
       <Swiper
@@ -143,7 +140,9 @@
               >{{ genero }}
             </span>
           </div>
-          <h3>Tipo: <br />{{ relatedMod.tipo }}</h3>
+          <h3>
+            Tipo: <span style="font-weight: 400">{{ relatedMod.tipo }}</span>
+          </h3>
           <router-link :to="{ path: `/mod/${relatedMod.slug}` }"
             ><i class="bi bi-three-dots-vertical"></i> Ver</router-link
           >
@@ -185,6 +184,9 @@
       </ul>
       <!-- Controles de paginación -->
     </div>
+  </div>
+  <div v-else id="loader">
+    <Loader></Loader>
   </div>
 </template>
 
@@ -727,5 +729,14 @@ onUnmounted(() => {
   left: 2rem;
   z-index: 100;
   background: green !important;
+}
+
+#loader {
+  width: 100%;
+  min-height: 90dvh;
+  transform: scale(1.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>
